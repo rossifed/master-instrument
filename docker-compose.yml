@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres-master-instrument
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${PG_USER}
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: ${PG_DB}
+    ports:
+      - "${PG_PORT}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - master-instrument-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${PG_USER}"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  flyway:
+    image: redgate/flyway:latest
+    container_name: flyway
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./flyway/migrations/referential:/flyway/sql
+      - ./flyway/conf/flyway.conf:/flyway/conf/flyway.conf:ro
+    networks:
+      - master-instrument-net
+    env_file:
+    - .env
+    command: migrate
+
+volumes:
+  postgres_data:
+
+networks:
+  master-instrument-net:
