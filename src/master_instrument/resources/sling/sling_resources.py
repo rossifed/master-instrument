@@ -7,18 +7,12 @@ sling_resources = SlingResource(
         SlingConnectionResource(
             name="QA_MSSQL",
             type="sqlserver",
-            host=EnvVar("QA_HOST"),
-            user=EnvVar("QA_USER"),
-            password=EnvVar("QA_PSW"),
-            database=EnvVar("QA_DB"),
+            connection_string="sqlserver://sa:%3Ds3F%7BJ2%3CaU%275%2Bx9eaq@192.168.123.20:1433?database=qai",
         ), # type: ignore
         SlingConnectionResource(
             name="REFERENTIAL_POSTGRES",
-            type="POSTGRES",
-            host=EnvVar("PG_HOST"),
-            user=EnvVar("PG_USER"),
-            port=EnvVar("PG_PORT"),
-            database=EnvVar("PG_DB"),
+            type="postgres",
+            connection_string="postgres://postgres:postgres123@host.docker.internal:5434/master-instrument?sslmode=disable",
         ), # type: ignore
     
 ]

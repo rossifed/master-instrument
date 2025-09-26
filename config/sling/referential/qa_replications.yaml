@@ -1,0 +1,15 @@
+# config/sling/referential/refinitive_replications.yaml
+source: QA_MSSQL
+target: REFERENTIAL_POSTGRES
+
+defaults:
+  mode: full-refresh
+  object: raw.qa_{stream_table}
+  schema: raw
+
+streams:
+  dbo.DS2Company:
+    meta:
+      dagster:
+        asset_key: qa_ds2company
+        group: "ref_data"

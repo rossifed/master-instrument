@@ -10,32 +10,89 @@ services:
     ports:
       - "${PG_PORT}:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - master-instrument-net
+      - master_instrument_postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${PG_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
       interval: 5s
       timeout: 3s
       retries: 5
 
-  flyway:
+  dagster-postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: ${DAGSTER_PG_USER}
+      POSTGRES_PASSWORD: ${DAGSTER_PG_PASSWORD}
+      POSTGRES_DB: ${DAGSTER_PG_DB}
+    ports:
+      - "${DAGSTER_PG_PORT:-5433}:5432"
+    volumes:
+      - dagster_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  flyway-referential:
     image: redgate/flyway:latest
-    container_name: flyway
+    container_name: flyway-referential
     depends_on:
       postgres:
         condition: service_healthy
     volumes:
       - ./migrations/referential:/flyway/sql
-      - ./config/flyway/flyway.conf:/flyway/conf/flyway.conf:ro
+      - ./config/flyway/referential/flyway.conf:/flyway/conf/flyway.conf:ro
     networks:
       - master-instrument-net
     env_file:
-    - .env
+      - .env
     command: migrate
 
+  dagster-webserver:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_dagster
+    ports:
+      - "${DAGSTER_PORT}:3000"
+    depends_on:
+      - dagster-postgres
+      - dagster-code
+    env_file: .env
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+    volumes:
+      - ./dagster_home:/opt/dagster/dagster_home
+    command: ["dagster-webserver", "-h", "0.0.0.0", "-p", "3000"]
+
+  dagster-daemon:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_dagster
+    depends_on:
+      - dagster-postgres
+      - dagster-code
+    env_file: .env
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+    volumes:
+      - ./dagster_home:/opt/dagster/dagster_home
+    command: ["dagster-daemon", "run"]
+
+  dagster-code:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile_code
+    depends_on:
+      - dagster-postgres
+    env_file: .env
+    environment:
+      DAGSTER_HOME: /opt/dagster/dagster_home
+    command: ["dagster", "api", "grpc", "-h", "0.0.0.0", "-p", "4000", "-m", "master_instrument.definitions"]   
+
 volumes:
-  postgres_data:
+  master_instrument_postgres_data:
+  dagster_postgres_data:
 
 networks:
   master-instrument-net:
+  dagster-net:

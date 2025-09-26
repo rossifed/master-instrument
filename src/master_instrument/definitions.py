@@ -1,8 +1,8 @@
 # src/master_instrument/definitions.py
 
 from dagster import load_asset_checks_from_modules, load_assets_from_modules, Definitions
-from .assets import sling
-from .resources.sling.sling_resources import sling_resources
+from master_instrument.assets import sling
+from master_instrument.resources.sling.sling_resources import sling_resources
 
 all_assets = load_assets_from_modules([
     sling

@@ -1,3 +1,5 @@
+CREATE SCHEMA IF NOT EXISTS raw;
+CREATE SCHEMA IF NOT EXISTS staging;
 CREATE SCHEMA IF NOT EXISTS referential;
 
 CREATE TABLE IF NOT EXISTS referential.instrument_type (

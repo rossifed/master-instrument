@@ -2,10 +2,16 @@
 name = "master_instrument"
 requires-python = ">=3.9,<3.14"
 version = "0.1.0"
+
 dependencies = [
     "dagster==1.11.11",
+    "dagster-postgres>=0.27.11",
     "dagster-sling>=0.27.11",
+    "dagster-webserver>=1.11.11",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
 
 [dependency-groups]
 dev = [
