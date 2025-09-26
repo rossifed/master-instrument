@@ -1,4 +1,4 @@
-INSERT INTO instrument_type (mnemonic, name)
+INSERT INTO referential.instrument_type (mnemonic, name)
 VALUES 
     ('EQ', 'Equity'),
     ('CRY', 'Crypto')

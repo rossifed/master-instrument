@@ -26,8 +26,8 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./flyway/migrations/referential:/flyway/sql
-      - ./flyway/conf/flyway.conf:/flyway/conf/flyway.conf:ro
+      - ./migrations/referential:/flyway/sql
+      - ./config/flyway/flyway.conf:/flyway/conf/flyway.conf:ro
     networks:
       - master-instrument-net
     env_file:

@@ -462,6 +462,20 @@ wheels = [
 ]
 
 [[package]]
+name = "dagster-sling"
+version = "0.27.11"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "dagster" },
+    { name = "sling" },
+    { name = "sling-mac-arm64", marker = "platform_machine == 'arm64' and sys_platform == 'darwin'" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/c4/71/0d3d8bcb09103e0f7686dd86b6639f53daa8d15d0e6140ce304db27d0998/dagster_sling-0.27.11.tar.gz", hash = "sha256:05179dc745b875768af3a07b6af05d9dd43112fd467e63d0af3acb59d3acc0d8", size = 22186, upload-time = "2025-09-18T20:32:28.893Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/45/29/8fb94c13bf94142d5c11e18f62df8ef1103498016d220cb8eb9a9334f786/dagster_sling-0.27.11-py3-none-any.whl", hash = "sha256:a26de547b7b60364c91b69c74d5f124800bfb202ec8de8b4a9cfe781b1517b25", size = 25194, upload-time = "2025-09-18T20:32:28.019Z" },
+]
+
+[[package]]
 name = "dagster-webserver"
 version = "1.11.11"
 source = { registry = "https://pypi.org/simple" }
@@ -797,34 +811,11 @@ name = "importlib-metadata"
 version = "8.7.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "zipp", marker = "python_full_version < '3.11'" },
+    { name = "zipp", marker = "python_full_version < '3.10'" },
 ]
 sdist = { url = "https://files.pythonhosted.org/packages/76/66/650a33bd90f786193e4de4b3ad86ea60b53c89b669a5c7be931fac31cdb0/importlib_metadata-8.7.0.tar.gz", hash = "sha256:d13b81ad223b890aa16c5471f2ac3056cf76c5f10f82d6f9292f0b415f389000", size = 56641, upload-time = "2025-04-27T15:29:01.736Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/20/b0/36bd937216ec521246249be3bf9855081de4c5e06a0c9b4219dbeda50373/importlib_metadata-8.7.0-py3-none-any.whl", hash = "sha256:e5dd1551894c77868a30651cef00984d50e1002d06942a7101d34870c5f02afd", size = 27656, upload-time = "2025-04-27T15:29:00.214Z" },
-]
-
-[[package]]
-name = "instrument-master"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "dagster" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "dagster-dg-cli" },
-    { name = "dagster-webserver" },
-]
-
-[package.metadata]
-requires-dist = [{ name = "dagster", specifier = "==1.11.11" }]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "dagster-dg-cli" },
-    { name = "dagster-webserver" },
 ]
 
 [[package]]
@@ -988,6 +979,35 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/17/d8/5811082f85bb88410ad7e452263af048d685669bbbfb7b595e8689152498/MarkupSafe-3.0.2-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:eb7972a85c54febfb25b5c4b4f3af4dcc731994c7da0d8a0b4a6eb0640e1d178", size = 20946, upload-time = "2024-10-18T15:21:50.441Z" },
     { url = "https://files.pythonhosted.org/packages/7c/31/bd635fb5989440d9365c5e3c47556cfea121c7803f5034ac843e8f37c2f2/MarkupSafe-3.0.2-cp39-cp39-win32.whl", hash = "sha256:8c4e8c3ce11e1f92f6536ff07154f9d49677ebaaafc32db9db4620bc11ed480f", size = 15063, upload-time = "2024-10-18T15:21:51.385Z" },
     { url = "https://files.pythonhosted.org/packages/b3/73/085399401383ce949f727afec55ec3abd76648d04b9f22e1c0e99cb4bec3/MarkupSafe-3.0.2-cp39-cp39-win_amd64.whl", hash = "sha256:6e296a513ca3d94054c2c881cc913116e90fd030ad1c656b3869762b754f5f8a", size = 15506, upload-time = "2024-10-18T15:21:52.974Z" },
+]
+
+[[package]]
+name = "master-instrument"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "dagster" },
+    { name = "dagster-sling" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "dagster-dg-cli" },
+    { name = "dagster-sling" },
+    { name = "dagster-webserver" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "dagster", specifier = "==1.11.11" },
+    { name = "dagster-sling", specifier = ">=0.27.11" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "dagster-dg-cli" },
+    { name = "dagster-sling", specifier = ">=0.27.11" },
+    { name = "dagster-webserver" },
 ]
 
 [[package]]
@@ -1767,6 +1787,24 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/94/e7/b2c673351809dca68a0e064b6af791aa332cf192da575fd474ed7d6f16a2/six-1.17.0.tar.gz", hash = "sha256:ff70335d468e7eb6ec65b95b99d3a2836546063f63acc5171de367e834932a81", size = 34031, upload-time = "2024-12-04T17:35:28.174Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b7/ce/149a00dd41f10bc29e5921b496af8b574d8413afcd5e30dfa0ed46c2cc5e/six-1.17.0-py2.py3-none-any.whl", hash = "sha256:4721f391ed90541fddacab5acf947aa0d3dc7d27b2e1e8eda2be8970586c3274", size = 11050, upload-time = "2024-12-04T17:35:26.475Z" },
+]
+
+[[package]]
+name = "sling"
+version = "1.4.22"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/93/2b/e5b15bccd04741cad49d4b253faf2ba601270af23aceef913174078ad88a/sling-1.4.22.tar.gz", hash = "sha256:3354143ed8d153e1f60eb23058d0701c022d1b8ef8ec75ebacef1707a9a868af", size = 40249, upload-time = "2025-09-15T14:21:22.857Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/d6/d1/4dd900e8c9e15dc4241ba767796683f551b74b469507da349d277899a259/sling-1.4.22-py3-none-any.whl", hash = "sha256:b393b56b9f7d6ff515141021484334261d29953b65ca9566b8b55ead7625c00a", size = 24496, upload-time = "2025-09-15T14:21:21.793Z" },
+]
+
+[[package]]
+name = "sling-mac-arm64"
+version = "1.4.10.post2"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/c5/48/153f94bbb1fd6eb5812fbc2269ef89d93fdea15802b626e88c20b2f1edc4/sling_mac_arm64-1.4.10.post2.tar.gz", hash = "sha256:52cbfa689b621fff1a7d1c9a8b8ab0c6b89c5a5bd86921a725496160d38849a8", size = 92866186, upload-time = "2025-06-19T21:45:04.595Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0a/1f/12ac71c65e45a34181cf5916a43b37dcac8712d9105971e4c04bdf74999c/sling_mac_arm64-1.4.10.post2-py3-none-any.whl", hash = "sha256:d66b2d2119a01c8d38c25725c04044ee477762c6993dc13debcbd605c0429891", size = 93154303, upload-time = "2025-06-19T21:44:59.917Z" },
 ]
 
 [[package]]
