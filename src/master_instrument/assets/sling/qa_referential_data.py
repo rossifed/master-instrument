@@ -1,6 +1,6 @@
 from dagster import file_relative_path
 from dagster_sling import SlingResource, sling_assets
-from master_instrument.resources.sling.translators import SlingTranslator
+
 
 replication_config = file_relative_path(
     __file__, "../../../../config/sling/referential/qa_replications.yaml"
