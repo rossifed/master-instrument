@@ -2,6 +2,7 @@
 from dagster_sling import SlingConnectionResource, SlingResource
 
 from dagster import EnvVar
+
 sling_resources = SlingResource(
     connections=[
         SlingConnectionResource(

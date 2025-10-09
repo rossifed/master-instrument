@@ -13,3 +13,52 @@ streams:
       dagster:
         asset_key: qa_ds2company
         group: "ref_data"
+  dbo.DS2Security:
+    meta:
+      dagster:
+        asset_key: qa_ds2security
+        group: "ref_data"
+  dbo.DS2CtryQtInfo:
+    sql: |
+      SELECT
+        *
+      FROM dbo.DS2CtryQtInfo QT
+      JOIN vw_SecurityMappingX X
+        ON X.vencode = QT.InfoCode
+        AND X.ventype = 33 AND X.rank = 1
+    meta:
+      dagster:
+        asset_key: qa_ds2ctryqtinfo
+        group: "ref_data"
+  dbo.RKDFndCmpRefIssue:
+    sql: |
+      SELECT
+        *
+      FROM RKDFndCmpRefIssue R
+      JOIN vw_SecurityMappingX X
+        ON X.vencode = R.IssueCode
+        AND X.ventype = 26 and X.rank = 1
+    meta:
+      dagster:
+        asset_key: qa_rkdfndcmprefissue
+        group: "ref_data"
+  dbo.RKDFndCmpFiling:
+    meta:
+      dagster:
+        asset_key: qa_rkdfndcmpfiling
+        group: "ref_data"
+  dbo.DS2Exchange:
+    meta:
+      dagster:
+        asset_key: qa_ds2exchange
+        group: "ref_data"
+  dbo.DS2ExchQtInfo:
+    meta:
+      dagster:
+        asset_key: qa_ds2exchqtinfo
+        group: "ref_data"
+  dbo.DS2XRef:
+    meta:
+      dagster:
+        asset_key: qa_ds2xref
+        group: "ref_data"
