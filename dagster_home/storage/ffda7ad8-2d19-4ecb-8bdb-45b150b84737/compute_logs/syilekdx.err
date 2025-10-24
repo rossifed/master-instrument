@@ -1,0 +1,60 @@
+2025-10-23 08:29:10 +0000 - dagster - DEBUG - __ASSET_JOB - ffda7ad8-2d19-4ecb-8bdb-45b150b84737 - 150 - LOGS_CAPTURED - Started capturing logs in process (pid: 150).
+2025-10-23 08:29:10 +0000 - dagster - DEBUG - __ASSET_JOB - ffda7ad8-2d19-4ecb-8bdb-45b150b84737 - 150 - dbt_models - STEP_START - Started execution of step "dbt_models".
+2025-10-23 08:29:10 +0000 - dagster - INFO - __ASSET_JOB - ffda7ad8-2d19-4ecb-8bdb-45b150b84737 - dbt_models - A dbt subsetted execution is being performed. Overriding default dbt selection arguments `['--select', 'fqn:*']` with arguments: `['master_instrument.referential.instrument']`.
+2025-10-23 08:29:14 +0000 - dagster - INFO - __ASSET_JOB - ffda7ad8-2d19-4ecb-8bdb-45b150b84737 - dbt_models - Copying `/opt/dagster/app/dbt_project/target/partial_parse.msgpack` to `/opt/dagster/app/dbt_project/target/dbt_models-ffda7ad-7af63cb/partial_parse.msgpack` to take advantage of partial parsing.
+2025-10-23 08:29:14 +0000 - dagster - INFO - __ASSET_JOB - ffda7ad8-2d19-4ecb-8bdb-45b150b84737 - dbt_models - Running dbt command: `dbt build --select master_instrument.referential.instrument`.
+2025-10-23 08:29:19 +0000 - dagster - INFO - __ASSET_JOB - ffda7ad8-2d19-4ecb-8bdb-45b150b84737 - dbt_models - Finished dbt command: `dbt build --select master_instrument.referential.instrument`.
+2025-10-23 08:29:19 +0000 - dagster - ERROR - __ASSET_JOB - ffda7ad8-2d19-4ecb-8bdb-45b150b84737 - 150 - dbt_models - STEP_FAILURE - Execution of step "dbt_models" failed.
+
+dagster_dbt.errors.DagsterDbtCliRuntimeError: The dbt CLI process with command
+
+`dbt build --select master_instrument.referential.instrument`
+
+failed with exit code `1`. Check the stdout in the Dagster compute logs for the full information about the error, or view the dbt debug log: /opt/dagster/app/dbt_project/target/dbt_models-ffda7ad-7af63cb/dbt.log.
+
+Errors parsed from dbt logs:
+
+1 of 1 ERROR creating sql incremental model staging_referential.instrument ..... [[31mERROR[0m in 0.25s]
+
+[31mFailure in model instrument (models/referential/instrument.sql)[0m
+
+  Database Error in model instrument (models/referential/instrument.sql)
+  column "symbol" does not exist
+  LINE 7:         where (symbol) in (
+                         ^
+  compiled code at target/dbt_models-ffda7ad-7af63cb/run/master_instrument/models/referential/instrument.sql
+
+Stack Trace:
+  File "/usr/local/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_plan.py", line 247, in dagster_event_sequence_for_step
+    yield from check.generator(step_events)
+  File "/usr/local/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 504, in core_dagster_event_sequence_for_step
+    for user_event in _step_output_error_checked_user_event_sequence(
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 183, in _step_output_error_checked_user_event_sequence
+    for user_event in user_event_sequence:
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster/_core/execution/plan/execute_step.py", line 88, in _process_asset_results_to_events
+    for user_event in user_event_sequence:
+                      ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 190, in execute_core_compute
+    for step_output in _yield_compute_results(step_context, inputs, compute_fn, compute_context):
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster/_core/execution/plan/compute.py", line 159, in _yield_compute_results
+    for event in iterate_with_context(
+                 ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster/_utils/__init__.py", line 392, in iterate_with_context
+    next_output = next(iterator)
+                  ^^^^^^^^^^^^^^
+  File "/opt/dagster/app/src/master_instrument/assets/dbt/definitions.py", line 12, in dbt_models
+    yield from dbt.cli(["build"], context=context).stream()
+  File "/usr/local/lib/python3.12/site-packages/dagster_dbt/core/dbt_event_iterator.py", line 207, in __next__
+    return next(self._inner_iterator)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster_dbt/core/dbt_cli_invocation.py", line 289, in _stream_asset_events
+    for event in self.stream_raw_events():
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.12/site-packages/dagster_dbt/core/dbt_cli_invocation.py", line 382, in stream_raw_events
+    self._raise_on_error()
+  File "/usr/local/lib/python3.12/site-packages/dagster_dbt/core/dbt_cli_invocation.py", line 475, in _raise_on_error
+    raise error
+

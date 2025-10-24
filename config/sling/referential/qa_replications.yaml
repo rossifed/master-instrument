@@ -47,6 +47,21 @@ streams:
       dagster:
         asset_key: qa_rkdfndcmpfiling
         group: "ref_data"
+  dbo.RKDFndCmpDet:
+    meta:
+      dagster:
+        asset_key: qa_rkdfndcmpdet
+        group: "ref_data"     
+  dbo.RKDFndCmpRef:
+    meta:
+      dagster:
+        asset_key: qa_rkdfndcmpref
+        group: "ref_data"  
+  dbo.RKDFndCmpWebLink:
+    meta:
+      dagster:
+        asset_key: qa_rkdfndcmpweblink
+        group: "ref_data"  
   dbo.DS2Exchange:
     meta:
       dagster:

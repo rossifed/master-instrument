@@ -1,0 +1,23 @@
+Running with dbt=1.10.13
+Registered adapter: postgres=1.9.1
+Unable to do partial parsing because profile has changed
+Found 4 models, 16 sources, 447 macros
+
+Concurrency: 4 threads (target='dev')
+
+1 of 1 START sql incremental model staging_referential.instrument .............. [RUN]
+1 of 1 ERROR creating sql incremental model staging_referential.instrument ..... [[31mERROR[0m in 0.12s]
+
+Finished running 1 incremental model in 0 hours 0 minutes and 0.36 seconds (0.36s).
+
+[31mCompleted with 1 error, 0 partial successes, and 0 warnings:[0m
+
+[31mFailure in model instrument (models/referential/instrument.sql)[0m
+  Database Error in model instrument (models/referential/instrument.sql)
+  column "symbol" does not exist
+  LINE 16:     symbol,
+               ^
+
+  compiled code at target/dbt_models-55e2d03-f63dc28/compiled/master_instrument/models/referential/instrument.sql
+
+Done. PASS=0 WARN=0 ERROR=1 SKIP=0 NO-OP=0 TOTAL=1
