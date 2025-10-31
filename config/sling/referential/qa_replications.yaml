@@ -26,6 +26,11 @@ streams:
       JOIN vw_SecurityMappingX X
         ON X.vencode = QT.InfoCode
         AND X.ventype = 33 AND X.rank = 1
+        AND mappingX.StartDate = (
+        SELECT MAX(I.StartDate)
+        FROM vw_SecurityMappingX AS I
+        WHERE I.typ = X.typ AND I.vencode = X.vencode AND I.ventype = X.ventype
+        )
     meta:
       dagster:
         asset_key: qa_ds2ctryqtinfo
@@ -37,7 +42,14 @@ streams:
       FROM RKDFndCmpRefIssue R
       JOIN vw_SecurityMappingX X
         ON X.vencode = R.IssueCode
-        AND X.ventype = 26 and X.rank = 1
+        AND X.ventype = 26
+        AND X.rank = 1
+        AND mappingX.StartDate = (
+        SELECT MAX(I.StartDate)
+        FROM vw_SecurityMappingX AS I
+        WHERE I.typ = X.typ AND I.vencode = X.vencode AND I.ventype = X.ventype
+        )
+
     meta:
       dagster:
         asset_key: qa_rkdfndcmprefissue

@@ -4,7 +4,7 @@ from .base import Base
 
 class VenueType(Base):
     __tablename__ = "venue_type"
-    __table_args__ = {"schema": "referential"}
+    __table_args__ = {"schema": "master"}
 
     venue_type_id: Mapped[int] = mapped_column(primary_key=True)
     mnemonic: Mapped[str] = mapped_column(String(10), nullable=False)

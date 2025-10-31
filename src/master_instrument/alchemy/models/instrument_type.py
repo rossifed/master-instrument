@@ -4,7 +4,7 @@ from .base import Base
 
 class InstrumentType(Base):
     __tablename__ = "instrument_type"
-    __table_args__ = {"schema": "referential"}
+    __table_args__ = {"schema": "master"}
 
     instrument_type_id: Mapped[int] = mapped_column(SmallInteger, primary_key=True)
     mnemonic: Mapped[str] = mapped_column(String(10), nullable=False, unique=True)

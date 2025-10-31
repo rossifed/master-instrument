@@ -1,8 +1,8 @@
-"""init schema
+"""empty message
 
-Revision ID: 1ffb330abab7
+Revision ID: 50c40e8af53b
 Revises: 
-Create Date: 2025-10-24 17:39:12.120937
+Create Date: 2025-10-31 09:11:12.271235
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1ffb330abab7'
+revision: str = '50c40e8af53b'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -26,7 +26,17 @@ def upgrade() -> None:
     sa.Column('valid_from', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('valid_to', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('entity_id', name=op.f('pk_entity')),
-    schema='referential'
+    schema='master'
+    )
+    op.create_table('instrument_id_mapping',
+    sa.Column('internal_instrument_id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('external_instrument_id', sa.String(length=100), nullable=False),
+    sa.Column('source', sa.String(length=20), nullable=False),
+    sa.Column('valid_from', sa.TIMESTAMP(timezone=True), server_default=sa.text('now()'), nullable=False),
+    sa.Column('valid_to', sa.TIMESTAMP(timezone=True), nullable=True),
+    sa.PrimaryKeyConstraint('internal_instrument_id', name=op.f('pk_instrument_id_mapping')),
+    sa.UniqueConstraint('source', 'external_instrument_id', name=op.f('uq_instrument_id_mapping__source')),
+    schema='master'
     )
     op.create_table('instrument_type',
     sa.Column('instrument_type_id', sa.SmallInteger(), nullable=False),
@@ -37,7 +47,7 @@ def upgrade() -> None:
     sa.PrimaryKeyConstraint('instrument_type_id', name=op.f('pk_instrument_type')),
     sa.UniqueConstraint('mnemonic', name=op.f('uq_instrument_type__mnemonic')),
     sa.UniqueConstraint('name', name=op.f('uq_instrument_type__name')),
-    schema='referential'
+    schema='master'
     )
     op.create_table('venue_type',
     sa.Column('venue_type_id', sa.Integer(), nullable=False),
@@ -46,16 +56,16 @@ def upgrade() -> None:
     sa.Column('valid_from', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('valid_to', sa.TIMESTAMP(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('venue_type_id', name=op.f('pk_venue_type')),
-    schema='referential'
+    schema='master'
     )
     op.create_table('company',
     sa.Column('company_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('valid_from', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('valid_to', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['company_id'], ['referential.entity.entity_id'], name=op.f('fk_company__company_id__entity')),
+    sa.ForeignKeyConstraint(['company_id'], ['master.entity.entity_id'], name=op.f('fk_company__company_id__entity')),
     sa.PrimaryKeyConstraint('company_id', name=op.f('pk_company')),
-    schema='referential'
+    schema='master'
     )
     op.create_table('instrument',
     sa.Column('instrument_id', sa.Integer(), nullable=False),
@@ -65,10 +75,10 @@ def upgrade() -> None:
     sa.Column('name', sa.String(length=100), nullable=False),
     sa.Column('valid_from', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('valid_to', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['entity_id'], ['referential.entity.entity_id'], name=op.f('fk_instrument__entity_id__entity')),
-    sa.ForeignKeyConstraint(['instrument_type_id'], ['referential.instrument_type.instrument_type_id'], name=op.f('fk_instrument__instrument_type_id__instrument_type')),
+    sa.ForeignKeyConstraint(['entity_id'], ['master.entity.entity_id'], name=op.f('fk_instrument__entity_id__entity')),
+    sa.ForeignKeyConstraint(['instrument_type_id'], ['master.instrument_type.instrument_type_id'], name=op.f('fk_instrument__instrument_type_id__instrument_type')),
     sa.PrimaryKeyConstraint('instrument_id', name=op.f('pk_instrument')),
-    schema='referential'
+    schema='master'
     )
     op.create_table('venue',
     sa.Column('venue_id', sa.Integer(), nullable=False),
@@ -76,9 +86,9 @@ def upgrade() -> None:
     sa.Column('venue_type_id', sa.Integer(), nullable=False),
     sa.Column('valid_from', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('valid_to', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['venue_type_id'], ['referential.venue_type.venue_type_id'], name=op.f('fk_venue__venue_type_id__venue_type')),
+    sa.ForeignKeyConstraint(['venue_type_id'], ['master.venue_type.venue_type_id'], name=op.f('fk_venue__venue_type_id__venue_type')),
     sa.PrimaryKeyConstraint('venue_id', name=op.f('pk_venue')),
-    schema='referential'
+    schema='master'
     )
     op.create_table('quote',
     sa.Column('quote_id', sa.Integer(), nullable=False),
@@ -86,10 +96,10 @@ def upgrade() -> None:
     sa.Column('venue_id', sa.Integer(), nullable=False),
     sa.Column('valid_from', sa.TIMESTAMP(timezone=True), nullable=False),
     sa.Column('valid_to', sa.TIMESTAMP(timezone=True), nullable=True),
-    sa.ForeignKeyConstraint(['instrument_id'], ['referential.instrument.instrument_id'], name=op.f('fk_quote__instrument_id__instrument')),
-    sa.ForeignKeyConstraint(['venue_id'], ['referential.venue.venue_id'], name=op.f('fk_quote__venue_id__venue')),
+    sa.ForeignKeyConstraint(['instrument_id'], ['master.instrument.instrument_id'], name=op.f('fk_quote__instrument_id__instrument')),
+    sa.ForeignKeyConstraint(['venue_id'], ['master.venue.venue_id'], name=op.f('fk_quote__venue_id__venue')),
     sa.PrimaryKeyConstraint('quote_id', name=op.f('pk_quote')),
-    schema='referential'
+    schema='master'
     )
     # ### end Alembic commands ###
 
@@ -97,11 +107,12 @@ def upgrade() -> None:
 def downgrade() -> None:
     """Downgrade schema."""
     # ### commands auto generated by Alembic - please adjust! ###
-    op.drop_table('quote', schema='referential')
-    op.drop_table('venue', schema='referential')
-    op.drop_table('instrument', schema='referential')
-    op.drop_table('company', schema='referential')
-    op.drop_table('venue_type', schema='referential')
-    op.drop_table('instrument_type', schema='referential')
-    op.drop_table('entity', schema='referential')
+    op.drop_table('quote', schema='master')
+    op.drop_table('venue', schema='master')
+    op.drop_table('instrument', schema='master')
+    op.drop_table('company', schema='master')
+    op.drop_table('venue_type', schema='master')
+    op.drop_table('instrument_type', schema='master')
+    op.drop_table('instrument_id_mapping', schema='master')
+    op.drop_table('entity', schema='master')
     # ### end Alembic commands ###

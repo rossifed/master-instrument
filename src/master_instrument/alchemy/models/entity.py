@@ -4,7 +4,7 @@ from .base import Base
 
 class Entity(Base):
     __tablename__ = "entity"
-    __table_args__ = {"schema": "referential"}
+    __table_args__ = {"schema": "master"}
 
     entity_id: Mapped[int] = mapped_column(primary_key=True)
     valid_from: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), nullable=False)

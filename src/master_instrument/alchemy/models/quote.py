@@ -4,11 +4,11 @@ from .base import Base
 
 class Quote(Base):
     __tablename__ = "quote"
-    __table_args__ = {"schema": "referential"}
+    __table_args__ = {"schema": "master"}
 
     quote_id: Mapped[int] = mapped_column(primary_key=True)
-    instrument_id: Mapped[int] = mapped_column(ForeignKey("referential.instrument.instrument_id"))
-    venue_id: Mapped[int] = mapped_column(ForeignKey("referential.venue.venue_id"))
+    instrument_id: Mapped[int] = mapped_column(ForeignKey("master.instrument.instrument_id"))
+    venue_id: Mapped[int] = mapped_column(ForeignKey("master.venue.venue_id"))
     valid_from: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), nullable=False)
     valid_to: Mapped[str] = mapped_column(TIMESTAMP(timezone=True), nullable=True)
 

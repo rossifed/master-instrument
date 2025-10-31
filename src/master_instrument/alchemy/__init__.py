@@ -6,7 +6,7 @@ from master_instrument.alchemy.models.instrument_type import InstrumentType
 from master_instrument.alchemy.models.quote import Quote
 from master_instrument.alchemy.models.venue import Venue
 from master_instrument.alchemy.models.venue_type import VenueType
-
+from master_instrument.alchemy.models.instrument_id_mapping import InstrumentIdMapping
 target_metadata = Base.metadata
 
 __all__ = [
@@ -19,4 +19,5 @@ __all__ = [
     "Quote",
     "Venue",
     "VenueType",
+    "InstrumentIdMapping"
 ]
