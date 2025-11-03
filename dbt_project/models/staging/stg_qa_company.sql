@@ -8,6 +8,7 @@
 ) }}
 
     SELECT DISTINCT 
+        sqsm.rkd_code::TEXT as external_id,
         sqsm.rkd_code,
         sqsm.rkd_rel_to_code,
         qrcr."PrimaryName",

@@ -26,7 +26,7 @@ streams:
       JOIN vw_SecurityMappingX X
         ON X.vencode = QT.InfoCode
         AND X.ventype = 33 AND X.rank = 1
-        AND mappingX.StartDate = (
+        AND X.StartDate = (
         SELECT MAX(I.StartDate)
         FROM vw_SecurityMappingX AS I
         WHERE I.typ = X.typ AND I.vencode = X.vencode AND I.ventype = X.ventype
@@ -44,7 +44,7 @@ streams:
         ON X.vencode = R.IssueCode
         AND X.ventype = 26
         AND X.rank = 1
-        AND mappingX.StartDate = (
+        AND X.StartDate = (
         SELECT MAX(I.StartDate)
         FROM vw_SecurityMappingX AS I
         WHERE I.typ = X.typ AND I.vencode = X.vencode AND I.ventype = X.ventype

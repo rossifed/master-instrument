@@ -9,6 +9,7 @@
 
 
     SELECT  DISTINCT
+        qdeqi."InfoCode"::TEXT || '-' || qdeqi."ExchIntCode"::TEXT as external_quote_id,
         qdcqi."DsSecCode", 
         qdcqi."Region",
         qdcqi."RegCodeTypeId", 

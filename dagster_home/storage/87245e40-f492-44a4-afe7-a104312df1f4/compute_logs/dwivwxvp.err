@@ -1,9 +1,0 @@
-2025-10-23 07:59:19 +0000 - dagster - DEBUG - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - 32 - LOGS_CAPTURED - Started capturing logs in process (pid: 32).
-2025-10-23 07:59:19 +0000 - dagster - DEBUG - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - 32 - dbt_models - STEP_START - Started execution of step "dbt_models".
-2025-10-23 07:59:19 +0000 - dagster - INFO - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - dbt_models - A dbt subsetted execution is being performed. Overriding default dbt selection arguments `['--select', 'fqn:*']` with arguments: `['master_instrument.referential.instrument']`.
-2025-10-23 07:59:24 +0000 - dagster - INFO - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - dbt_models - Copying `/opt/dagster/app/dbt_project/target/partial_parse.msgpack` to `/opt/dagster/app/dbt_project/target/dbt_models-87245e4-015d91b/partial_parse.msgpack` to take advantage of partial parsing.
-2025-10-23 07:59:24 +0000 - dagster - INFO - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - dbt_models - Running dbt command: `dbt build --select master_instrument.referential.instrument`.
-2025-10-23 07:59:34 +0000 - dagster - DEBUG - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - 32 - dbt_models - STEP_OUTPUT - Yielded output "referential__instrument" of type "Nothing". (Type check passed).
-2025-10-23 07:59:34 +0000 - dagster - DEBUG - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - 32 - dbt_models - ASSET_MATERIALIZATION - Materialized value referential instrument.
-2025-10-23 07:59:34 +0000 - dagster - INFO - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - dbt_models - Finished dbt command: `dbt build --select master_instrument.referential.instrument`.
-2025-10-23 07:59:34 +0000 - dagster - DEBUG - __ASSET_JOB - 87245e40-f492-44a4-afe7-a104312df1f4 - 32 - dbt_models - STEP_SUCCESS - Finished execution of step "dbt_models" in 12.97s.

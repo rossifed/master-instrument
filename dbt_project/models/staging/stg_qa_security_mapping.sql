@@ -22,7 +22,7 @@ FROM {{ source('raw', 'qa_DS2Security') }} dssec
 JOIN {{ source('raw', 'qa_DS2CtryQtInfo') }} dsctry
   ON dsctry."DsSecCode" = dssec."DsSecCode"
 JOIN {{ source('raw', 'qa_RKDFndCmpRefIssue') }} rkdissue
-  ON dsctry."seccode" = rkdissue."seccode"
- AND dsctry."typ"     = rkdissue."typ"
+  ON rkdissue."seccode" = dsctry."seccode"
+ AND rkdissue."typ"     = dsctry."typ"
 JOIN {{ source('raw', 'qa_RKDFndCmpRef') }} rkdcomp
   ON rkdcomp."Code" = rkdissue."Code"

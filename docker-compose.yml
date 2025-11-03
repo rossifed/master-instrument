@@ -1,6 +1,6 @@
 services:
   workbench-postgres:
-    image: postgres:16
+    image: postgres:17
     container_name: postgres-workbench
     restart: unless-stopped
     environment:
@@ -20,7 +20,7 @@ services:
       - master-instrument-net
 
   postgres:
-    image: postgres:16
+    image: postgres:17
     container_name: postgres-master-instrument
     restart: unless-stopped
     environment:
@@ -40,7 +40,7 @@ services:
       - master-instrument-net
 
   dagster-postgres:
-    image: postgres:16
+    image: postgres:17
     environment:
       POSTGRES_USER: ${DAGSTER_PG_USER}
       POSTGRES_PASSWORD: ${DAGSTER_PG_PASSWORD}
