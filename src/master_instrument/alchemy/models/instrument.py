@@ -9,7 +9,7 @@ class Instrument(Base):
     instrument_id: Mapped[int] = mapped_column(primary_key=True)
     entity_id: Mapped[int] = mapped_column(ForeignKey("ref_data.entity.entity_id"))
     instrument_type_id: Mapped[int] = mapped_column(ForeignKey("ref_data.instrument_type.instrument_type_id"))
-    symbol: Mapped[str] = mapped_column(String(20), nullable=True)#has no choice since we don't have full not null symbology 
+    symbol: Mapped[str] = mapped_column(String(20), nullable=True)#has no choice since we don't have full not symbology 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
 
     entity: Mapped["Entity"] = relationship(back_populates="instruments")

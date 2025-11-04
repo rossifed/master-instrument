@@ -31,3 +31,7 @@ def instrument_types(engine: SqlAlchemyEngineResource) -> None:
 @asset(key_prefix=["master"], group_name="load")
 def venue_types(engine: SqlAlchemyEngineResource) -> None:
     load_from_sql_file(engine.get_engine(), "load_venue_types.sql")   
+
+@asset(key_prefix=["master"], group_name="load")
+def quotes(engine: SqlAlchemyEngineResource) -> None:
+    load_from_sql_file(engine.get_engine(), "load_quotes.sql")   

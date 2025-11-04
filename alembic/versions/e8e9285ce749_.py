@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: ec7438feff9f
+Revision ID: e8e9285ce749
 Revises: 
-Create Date: 2025-11-03 18:46:58.645361
+Create Date: 2025-11-04 10:02:50.608892
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'ec7438feff9f'
+revision: str = 'e8e9285ce749'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -133,6 +133,11 @@ def upgrade() -> None:
     sa.Column('quote_id', sa.Integer(), nullable=False),
     sa.Column('instrument_id', sa.Integer(), nullable=False),
     sa.Column('venue_id', sa.Integer(), nullable=False),
+    sa.Column('delisted_date', sa.Date(), nullable=True),
+    sa.Column('currency', sa.String(), nullable=False),
+    sa.Column('mic', sa.String(), nullable=True),
+    sa.Column('price_unit', sa.String(), nullable=False),
+    sa.Column('is_primary', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['instrument_id'], ['ref_data.instrument.instrument_id'], name=op.f('fk_quote__instrument_id__instrument')),
     sa.ForeignKeyConstraint(['venue_id'], ['ref_data.venue.venue_id'], name=op.f('fk_quote__venue_id__venue')),
     sa.PrimaryKeyConstraint('quote_id', name=op.f('pk_quote')),

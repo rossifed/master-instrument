@@ -13,6 +13,7 @@ from master_instrument.alchemy.models.venue_mapping import VenueMapping
 from master_instrument.alchemy.models.country import Country
 from master_instrument.alchemy.models.currency import Currency
 from master_instrument.alchemy.models.entity_type import EntityType
+from master_instrument.alchemy.models.quote_mapping import QuoteMapping
 target_metadata = Base.metadata
 
 __all__ = [
@@ -31,4 +32,6 @@ __all__ = [
     "VenueMapping",
     "Country",
     "Currency",
+    "EntityType",
+    "QuoteMapping",
 ]

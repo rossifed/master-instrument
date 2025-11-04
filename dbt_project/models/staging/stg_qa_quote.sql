@@ -10,6 +10,8 @@
 
     SELECT  DISTINCT
         qdeqi."InfoCode"::TEXT || '-' || qdeqi."ExchIntCode"::TEXT as external_quote_id,
+        qdeqi."InfoCode"::TEXT as external_instrument_id,
+        qdeqi."ExchIntCode"::TEXT as external_venue_id,
         qdcqi."DsSecCode", 
         qdcqi."Region",
         qdcqi."RegCodeTypeId", 
@@ -43,7 +45,7 @@
         qde."CtryCodeType"
     FROM {{ ref('stg_qa_security_mapping') }} sqsm
     JOIN {{ source('raw', 'qa_DS2CtryQtInfo') }} qdcqi 
-        ON qdcqi."DsSecCode" = sqsm."ds_sec_code"
+        ON qdcqi."InfoCode" = sqsm."ds_info_code"
     JOIN {{ source('raw', 'qa_DS2ExchQtInfo') }} qdeqi 
         ON qdeqi."InfoCode" = qdcqi."InfoCode"
     JOIN {{ source('raw', 'qa_DS2Exchange') }} qde 
