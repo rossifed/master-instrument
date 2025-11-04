@@ -11,7 +11,6 @@ class Instrument(Base):
     instrument_type_id: Mapped[int] = mapped_column(ForeignKey("ref_data.instrument_type.instrument_type_id"))
     symbol: Mapped[str] = mapped_column(String(20), nullable=True)#has no choice since we don't have full not symbology 
     name: Mapped[str] = mapped_column(String(100), nullable=False)
-
-    entity: Mapped["Entity"] = relationship(back_populates="instruments")
+    entity: Mapped["Entity"] = relationship(back_populates="instruments", uselist=False)
     instrument_type: Mapped["InstrumentType"] = relationship(back_populates="instruments")
     quotes: Mapped[list["Quote"]] = relationship(back_populates="instrument")

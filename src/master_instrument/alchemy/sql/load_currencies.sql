@@ -178,4 +178,5 @@ INSERT INTO ref_data.currency (name, code) VALUES
 ('Rand', 'ZAR'),
 ('Zambian Kwacha', 'ZMW'),
 ('Zimbabwe Gold', 'ZWG')
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO UPDATE
+SET name = EXCLUDED.name;

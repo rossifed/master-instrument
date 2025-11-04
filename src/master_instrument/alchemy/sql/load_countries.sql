@@ -53,7 +53,7 @@ INSERT INTO ref_data.country (name, code) VALUES
 ('Congo, the Democratic Republic of the', 'CD'),
 ('Cook Islands', 'CK'),
 ('Costa Rica', 'CR'),
-('Côte d\''Ivoire', 'CI'),
+('Côte d''Ivoire', 'CI'),
 ('Croatia', 'HR'),
 ('Cuba', 'CU'),
 ('Curaçao', 'CW'),
@@ -116,11 +116,11 @@ INSERT INTO ref_data.country (name, code) VALUES
 ('Kazakhstan', 'KZ'),
 ('Kenya', 'KE'),
 ('Kiribati', 'KI'),
-('Korea, Democratic People\''s Republic of', 'KP'),
+('Korea, Democratic People''s Republic of', 'KP'),
 ('Korea, Republic of', 'KR'),
 ('Kuwait', 'KW'),
 ('Kyrgyzstan', 'KG'),
-('Lao People\''s Democratic Republic', 'LA'),
+('Lao People''s Democratic Republic', 'LA'),
 ('Latvia', 'LV'),
 ('Lebanon', 'LB'),
 ('Lesotho', 'LS'),
@@ -248,4 +248,5 @@ INSERT INTO ref_data.country (name, code) VALUES
 ('Yemen', 'YE'),
 ('Zambia', 'ZM'),
 ('Zimbabwe', 'ZW')
-ON CONFLICT (code) DO NOTHING;
+ON CONFLICT (code) DO UPDATE
+SET name = EXCLUDED.name;

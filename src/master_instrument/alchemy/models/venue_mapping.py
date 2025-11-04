@@ -1,6 +1,6 @@
-from sqlalchemy import TIMESTAMP, String, UniqueConstraint,Index
+from sqlalchemy import String, UniqueConstraint,Index
 from sqlalchemy.orm import Mapped, mapped_column
-import datetime
+
 from .base import Base
 
 
@@ -8,7 +8,7 @@ class VenueMapping(Base):
     __tablename__ = "venue_mapping"
     __table_args__ = (
         UniqueConstraint("source", "external_venue_id"),
-        Index("idx_external_mapping_source_external", "source", "external_venue_id"),
+        Index("idx__source_external_venue_id", "source", "external_venue_id"),
         {"schema": "ref_data"},
     )
 

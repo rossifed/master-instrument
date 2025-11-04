@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: e8e9285ce749
+Revision ID: 65d70954b588
 Revises: 
-Create Date: 2025-11-04 10:02:50.608892
+Create Date: 2025-11-04 18:00:39.366625
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'e8e9285ce749'
+revision: str = '65d70954b588'
 down_revision: Union[str, Sequence[str], None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -29,7 +29,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('source', 'external_company_id', name=op.f('uq_company_mapping__source')),
     schema='ref_data'
     )
-    op.create_index('idx_company_mapping_source_external', 'company_mapping', ['source', 'external_company_id'], unique=False, schema='ref_data')
+    op.create_index('idx_source_external_company_id', 'company_mapping', ['source', 'external_company_id'], unique=False, schema='ref_data')
     op.create_table('country',
     sa.Column('country_id', sa.Integer(), nullable=False),
     sa.Column('code', sa.String(), nullable=False),
@@ -69,15 +69,26 @@ def upgrade() -> None:
     sa.UniqueConstraint('source', 'external_instrument_id', name=op.f('uq_instrument_mapping__source')),
     schema='ref_data'
     )
+    op.create_index('idx_source_external_instrument_id', 'instrument_mapping', ['source', 'external_instrument_id'], unique=False, schema='ref_data')
     op.create_table('instrument_type',
     sa.Column('instrument_type_id', sa.SmallInteger(), nullable=False),
     sa.Column('mnemonic', sa.String(length=10), nullable=False),
     sa.Column('name', sa.String(length=20), nullable=False),
     sa.PrimaryKeyConstraint('instrument_type_id', name=op.f('pk_instrument_type')),
     sa.UniqueConstraint('mnemonic', name=op.f('uq_instrument_type__mnemonic')),
+    sa.UniqueConstraint('mnemonic', name=op.f('uq_instrument_type__mnemonic')),
     sa.UniqueConstraint('name', name=op.f('uq_instrument_type__name')),
     schema='ref_data'
     )
+    op.create_table('quote_mapping',
+    sa.Column('internal_quote_id', sa.Integer(), autoincrement=True, nullable=False),
+    sa.Column('external_quote_id', sa.String(length=100), nullable=False),
+    sa.Column('source', sa.String(length=20), nullable=False),
+    sa.PrimaryKeyConstraint('internal_quote_id', name=op.f('pk_quote_mapping')),
+    sa.UniqueConstraint('source', 'external_quote_id', name=op.f('uq_quote_mapping__source')),
+    schema='ref_data'
+    )
+    op.create_index('idx_source_external_quote_id', 'quote_mapping', ['source', 'external_quote_id'], unique=False, schema='ref_data')
     op.create_table('venue_mapping',
     sa.Column('internal_venue_id', sa.Integer(), autoincrement=True, nullable=False),
     sa.Column('external_venue_id', sa.String(length=100), nullable=False),
@@ -86,7 +97,7 @@ def upgrade() -> None:
     sa.UniqueConstraint('source', 'external_venue_id', name=op.f('uq_venue_mapping__source')),
     schema='ref_data'
     )
-    op.create_index('idx_external_mapping_source_external', 'venue_mapping', ['source', 'external_venue_id'], unique=False, schema='ref_data')
+    op.create_index('idx__source_external_venue_id', 'venue_mapping', ['source', 'external_venue_id'], unique=False, schema='ref_data')
     op.create_table('venue_type',
     sa.Column('venue_type_id', sa.Integer(), nullable=False),
     sa.Column('mnemonic', sa.String(length=10), nullable=False),
@@ -98,7 +109,31 @@ def upgrade() -> None:
     op.create_table('company',
     sa.Column('company_id', sa.Integer(), nullable=False),
     sa.Column('name', sa.String(length=100), nullable=False),
+    sa.Column('description', sa.String(length=255), nullable=True),
+    sa.Column('employee_count', sa.Integer(), nullable=True),
+    sa.Column('employee_count_date', sa.Date(), nullable=True),
+    sa.Column('st_address_1', sa.String(length=100), nullable=True),
+    sa.Column('st_address_2', sa.String(length=100), nullable=True),
+    sa.Column('city', sa.String(length=50), nullable=True),
+    sa.Column('state', sa.String(length=50), nullable=True),
+    sa.Column('postal_code', sa.String(length=20), nullable=True),
+    sa.Column('country_id', sa.Integer(), nullable=True),
+    sa.Column('public_since', sa.Date(), nullable=True),
+    sa.Column('common_shareholders', sa.Integer(), nullable=True),
+    sa.Column('common_shareholders_date', sa.Date(), nullable=True),
+    sa.Column('total_shares_outstanding', sa.Integer(), nullable=True),
+    sa.Column('shares_outstanding_updated_at', sa.Date(), nullable=True),
+    sa.Column('total_float_shares', sa.Integer(), nullable=True),
+    sa.Column('estimates_currency_id', sa.Integer(), nullable=True),
+    sa.Column('statements_currency_id', sa.Integer(), nullable=True),
+    sa.Column('last_modified_financial_at', sa.Date(), nullable=True),
+    sa.Column('last_modified_non_financial_at', sa.Date(), nullable=True),
+    sa.Column('latest_annual_financial_date', sa.Date(), nullable=True),
+    sa.Column('latest_interim_financial_date', sa.Date(), nullable=True),
     sa.ForeignKeyConstraint(['company_id'], ['ref_data.entity.entity_id'], name=op.f('fk_company__company_id__entity')),
+    sa.ForeignKeyConstraint(['country_id'], ['ref_data.country.country_id'], name=op.f('fk_company__country_id__country')),
+    sa.ForeignKeyConstraint(['estimates_currency_id'], ['ref_data.currency.currency_id'], name=op.f('fk_company__estimates_currency_id__currency')),
+    sa.ForeignKeyConstraint(['statements_currency_id'], ['ref_data.currency.currency_id'], name=op.f('fk_company__statements_currency_id__currency')),
     sa.PrimaryKeyConstraint('company_id', name=op.f('pk_company')),
     schema='ref_data'
     )
@@ -125,6 +160,18 @@ def upgrade() -> None:
     op.create_table('equity',
     sa.Column('equity_id', sa.Integer(), nullable=False),
     sa.Column('isin', sa.String(length=12), nullable=True),
+    sa.Column('cusip', sa.String(length=9), nullable=True),
+    sa.Column('sedol', sa.String(length=7), nullable=True),
+    sa.Column('ric', sa.String(length=10), nullable=True),
+    sa.Column('ticker', sa.String(length=10), nullable=True),
+    sa.Column('equity_type', sa.String(length=1), nullable=False),
+    sa.Column('description', sa.String(length=100), nullable=False),
+    sa.Column('div_unit', sa.String(length=5), nullable=True),
+    sa.Column('is_major', sa.Boolean(), nullable=False),
+    sa.Column('country_id', sa.Integer(), nullable=False),
+    sa.Column('split_date', sa.Date(), nullable=True),
+    sa.Column('split_factor', sa.Float(), nullable=True),
+    sa.ForeignKeyConstraint(['country_id'], ['ref_data.country.country_id'], name=op.f('fk_equity__country_id__country')),
     sa.ForeignKeyConstraint(['equity_id'], ['ref_data.instrument.instrument_id'], name=op.f('fk_equity__equity_id__instrument')),
     sa.PrimaryKeyConstraint('equity_id', name=op.f('pk_equity')),
     schema='ref_data'
@@ -155,14 +202,17 @@ def downgrade() -> None:
     op.drop_table('instrument', schema='ref_data')
     op.drop_table('company', schema='ref_data')
     op.drop_table('venue_type', schema='ref_data')
-    op.drop_index('idx_external_mapping_source_external', table_name='venue_mapping', schema='ref_data')
+    op.drop_index('idx__source_external_venue_id', table_name='venue_mapping', schema='ref_data')
     op.drop_table('venue_mapping', schema='ref_data')
+    op.drop_index('idx_source_external_quote_id', table_name='quote_mapping', schema='ref_data')
+    op.drop_table('quote_mapping', schema='ref_data')
     op.drop_table('instrument_type', schema='ref_data')
+    op.drop_index('idx_source_external_instrument_id', table_name='instrument_mapping', schema='ref_data')
     op.drop_table('instrument_mapping', schema='ref_data')
     op.drop_table('entity_type', schema='ref_data')
     op.drop_table('entity', schema='ref_data')
     op.drop_table('currency', schema='ref_data')
     op.drop_table('country', schema='ref_data')
-    op.drop_index('idx_company_mapping_source_external', table_name='company_mapping', schema='ref_data')
+    op.drop_index('idx_source_external_company_id', table_name='company_mapping', schema='ref_data')
     op.drop_table('company_mapping', schema='ref_data')
     # ### end Alembic commands ###

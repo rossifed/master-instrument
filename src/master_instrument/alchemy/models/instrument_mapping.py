@@ -1,6 +1,5 @@
-from sqlalchemy import TIMESTAMP, String, UniqueConstraint,func
+from sqlalchemy import Index, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
-import datetime
 from .base import Base
 
 
@@ -8,6 +7,7 @@ class InstrumentMapping(Base):
     __tablename__ = "instrument_mapping"
     __table_args__ = (
         UniqueConstraint("source", "external_instrument_id"),
+        Index("idx_source_external_instrument_id", "source", "external_instrument_id"),
         {"schema": "ref_data"},
     )
 

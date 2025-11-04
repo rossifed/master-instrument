@@ -1,6 +1,5 @@
-from sqlalchemy import TIMESTAMP, String, UniqueConstraint,func
+from sqlalchemy import Index, String, UniqueConstraint,func
 from sqlalchemy.orm import Mapped, mapped_column
-import datetime
 from .base import Base
 
 
@@ -8,6 +7,7 @@ class QuoteMapping(Base):
     __tablename__ = "quote_mapping"
     __table_args__ = (
         UniqueConstraint("source", "external_quote_id"),
+        Index("idx_source_external_quote_id", "source", "external_quote_id"),
         {"schema": "ref_data"},
     )
 

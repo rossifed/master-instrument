@@ -7,16 +7,14 @@
     }
 ) }}
 
-
-    SELECT  DISTINCT
-        sqq."ExchIntCode"::TEXT as external_exchange_id,          
-        sqq."ExchIntCode",           
-        sqq."DsExchCode", 
-        sqq."ExchType", 
-        sqq."ExchName", 
-        sqq."ExchMnem", 
-        sqq."ExchCtryCode", 
-        sqq."CtryCodeType"
-    FROM {{ ref('stg_qa_quote') }} sqq 
-   
-
+SELECT DISTINCT
+    sqq.exch_int_code::TEXT  AS external_exchange_id,
+    sqq.exch_int_code        AS exch_int_code,
+    sqq.ds_exch_code,
+    sqq.exch_type,
+    sqq.exch_name,
+    sqq.exch_mnem,
+    sqq.exch_ctry_code,
+    sqq.ctry_code_type,
+    'QA'                     AS source
+FROM {{ ref('stg_qa_quote') }} AS sqq

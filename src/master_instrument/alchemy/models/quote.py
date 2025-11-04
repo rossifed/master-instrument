@@ -2,6 +2,7 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from .base import Base
 import datetime
+
 class Quote(Base):
     __tablename__ = "quote"
     __table_args__ = {"schema": "ref_data"}

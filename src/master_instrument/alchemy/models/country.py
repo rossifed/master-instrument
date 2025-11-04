@@ -1,5 +1,5 @@
-from sqlalchemy import TIMESTAMP, UniqueConstraint
-from sqlalchemy.orm import Mapped, mapped_column, relationship
+from sqlalchemy import UniqueConstraint
+from sqlalchemy.orm import Mapped, mapped_column
 from .base import Base
 
 class Country(Base):

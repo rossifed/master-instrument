@@ -1,6 +1,5 @@
-from sqlalchemy import TIMESTAMP, String, UniqueConstraint,Index
+from sqlalchemy import String, UniqueConstraint,Index
 from sqlalchemy.orm import Mapped, mapped_column
-import datetime
 from .base import Base
 
 
@@ -8,7 +7,7 @@ class CompanyMapping(Base):
     __tablename__ = "company_mapping"
     __table_args__ = (
         UniqueConstraint("source", "external_company_id"),
-        Index("idx_company_mapping_source_external", "source", "external_company_id"),
+        Index("idx_source_external_company_id", "source", "external_company_id"),
         {"schema": "ref_data"},
     )
 
