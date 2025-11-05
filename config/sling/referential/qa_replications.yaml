@@ -11,13 +11,13 @@ streams:
   dbo.DS2Company:
     meta:
       dagster:
-        asset_key: qa_ds2company
-        group: "ref_data"
+        asset_key: raw.qa_ds2company
+        group: "refinitiv_qa"
   dbo.DS2Security:
     meta:
       dagster:
-        asset_key: qa_ds2security
-        group: "ref_data"
+        asset_key: raw.qa_ds2security
+        group: "refinitiv_qa"
   dbo.DS2CtryQtInfo:
     sql: |
       SELECT
@@ -33,8 +33,8 @@ streams:
         )
     meta:
       dagster:
-        asset_key: qa_ds2ctryqtinfo
-        group: "ref_data"
+        asset_key: raw.qa_ds2ctryqtinfo
+        group: "refinitiv_qa"
   dbo.RKDFndCmpRefIssue:
     sql: |
       SELECT
@@ -52,45 +52,52 @@ streams:
 
     meta:
       dagster:
-        asset_key: qa_rkdfndcmprefissue
-        group: "ref_data"
+        asset_key: raw.qa_rkdfndcmprefissue
+        group: "refinitiv_qa"
   dbo.RKDFndCmpFiling:
     meta:
       dagster:
-        asset_key: qa_rkdfndcmpfiling
-        group: "ref_data"
+        asset_key: raw.qa_rkdfndcmpfiling
+        group: "refinitiv_qa"
   dbo.RKDFndCmpDet:
     meta:
       dagster:
-        asset_key: qa_rkdfndcmpdet
-        group: "ref_data"     
+        asset_key: raw.qa_rkdfndcmpdet
+        group: "refinitiv_qa"     
   dbo.RKDFndCmpRef:
     meta:
       dagster:
-        asset_key: qa_rkdfndcmpref
-        group: "ref_data"  
+        asset_key: raw.qa_rkdfndcmpref
+        group: "refinitiv_qa"  
   dbo.RKDFndCmpWebLink:
     meta:
       dagster:
-        asset_key: qa_rkdfndcmpweblink
-        group: "ref_data"  
+        asset_key: raw.qa_rkdfndcmpweblink
+        group: "refinitiv_qa"  
   dbo.DS2Exchange:
     meta:
       dagster:
-        asset_key: qa_ds2exchange
-        group: "ref_data"
+        asset_key: raw.qa_ds2exchange
+        group: "refinitiv_qa"
   dbo.DS2ExchQtInfo:
     meta:
       dagster:
-        asset_key: qa_ds2exchqtinfo
-        group: "ref_data"
+        asset_key: raw.qa_ds2exchqtinfo
+        group: "refinitiv_qa"
   dbo.DS2XRef:
     meta:
       dagster:
-        asset_key: qa_ds2xref
-        group: "ref_data"
+        asset_key: raw.qa_ds2xref
+        group: "refinitiv_qa"
   dbo.RKDFndCode:
     meta:
       dagster:
-        asset_key: qa_rkdfndcode
-        group: "ref_data"
+        asset_key: raw.qa_rkdfndcode
+        group: "refinitiv_qa"
+  dbo.vw_IBES2Mapping:
+    sql: |
+      SELECT * FROM dbo.vw_IBES2Mapping
+    meta:
+      dagster:
+        asset_key: raw.qa_vw_ibes2mapping
+        group: "refinitiv_qa"

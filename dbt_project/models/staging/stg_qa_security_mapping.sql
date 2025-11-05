@@ -17,7 +17,7 @@ SELECT DISTINCT
     rkdissue."IssueCode"     AS rkd_issue_code,
     rkdissue."IssueID"       AS rkd_issue_id,
     rkdissue."Code"          AS rkd_code,
-    rkdcomp."RelToCode"      AS rkd_rel_to_code
+    rkdcomp."RelToCode"      AS rkd_rel_to_code,
     'QA'                     AS source  
 FROM {{ source('raw', 'qa_DS2Security') }} dssec
 JOIN {{ source('raw', 'qa_DS2CtryQtInfo') }} dsctry
