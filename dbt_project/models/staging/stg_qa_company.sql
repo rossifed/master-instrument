@@ -19,8 +19,8 @@ SELECT DISTINCT
     qrcr."LastModOtherDt"        AS last_mod_other_dt,
     qrcr."IssuerTypeCode"        AS issuer_type_code,
     qrcr."COATypeCode"           AS coa_type_code,
-    qrcr."FinStmtCurrCode"       AS fin_stmt_curr_code,
-    qrcr."EstCurrCode"           AS est_curr_code, 
+    stat_ccy."Desc_"             AS fin_stmt_curr_code,
+    est_ccy."Desc_"              AS est_curr_code, 
   
     qrcd."Employees"             AS employees,
     qrcd."EmpLastUpdDt"          AS emp_last_upd_dt,
@@ -46,3 +46,7 @@ LEFT JOIN {{ source('raw', 'qa_RKDFndCmpDet') }} AS qrcd
 LEFT JOIN {{ source('raw', 'qa_RKDFndCmpFiling') }} AS qrcf
   ON qrcf."Code" = qrcd."Code"
  AND qrcf."TxtInfoTypeCode" = 2
+LEFT JOIN {{ source('raw', 'qa_RKDFndCode') }} AS est_ccy
+  ON est_ccy."Code" = qrcr."EstCurrCode" and est_ccy."Type_" = 58
+LEFT JOIN {{ source('raw', 'qa_RKDFndCode') }} AS stat_ccy
+  ON stat_ccy."Code" = qrcr."FinStmtCurrCode" and stat_ccy."Type_" = 58

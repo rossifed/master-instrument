@@ -15,9 +15,6 @@ clean-targets:
 
 models:
   master_instrument:
-    referential:
-      +schema: referential
-      +materialized: incremental
     staging:
       +schema: staging
       +materialized: view

@@ -30,8 +30,12 @@ SELECT DISTINCT
 
     qdeqi."InfoCode"                                           AS info_code,
     qdeqi."ISOCurrCode"                                        AS iso_curr_code,
-    qdeqi."IsPrimExchQt"                                       AS is_prim_exch_qt,
-    qdeqi."PriceUnit"                                          AS price_unit,
+    (upper(trim(qdeqi."IsPrimExchQt")) = 'Y')::boolean         AS is_primary,
+    CASE
+        WHEN qdeqi."PriceUnit" LIKE 'E%' THEN
+            POWER(10, -CAST(SUBSTRING(qdeqi."PriceUnit" FROM 3 FOR 3) AS INT))
+        ELSE 1
+    END                                                        AS price_unit,
     qdeqi."StartDate"                                          AS start_date_quote,
     qdeqi."AltDsCode"                                          AS alt_ds_code,
     qdeqi."QtPermID"                                           AS qt_perm_id,

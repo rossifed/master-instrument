@@ -20,7 +20,7 @@ SELECT DISTINCT
 
     ds."DsSctyCode"                    AS ds_scty_code,
     ds."DsSecName"                     AS ds_sec_name,
-    ds."IsMajorSec"                    AS is_major_sec,
+    (upper(trim(ds."IsMajorSec")) = 'Y')::boolean AS is_major_security,
     ds."ISOCurrCode"                   AS iso_curr_code,
     ds."DivUnit"                       AS div_unit,
     ds."PrimQtSedol"                   AS prim_qt_sedol,
@@ -30,15 +30,22 @@ SELECT DISTINCT
     ds."IBESTicker"                    AS ibes_ticker,
     ds."WSSctyPPI2"                    AS ws_scty_ppi2,
     ds."IBESTicker2"                   AS ibes_ticker2,
-    ds."DelistDate"                    AS ds_delist_date,
+    ds."DelistDate"                    AS sec_delist_date,
 
     dsctry."DsQtName"                  AS ds_qt_name,
     dsctry."Region"                    AS region,
+    (dsctry."IsPrimQt"  = 1)           AS is_primary_country,
+    dsctry."StatusCode"                AS status_code,
+    dsctry."RegCodeTypeId"             AS reg_code_type_id,
+    dsctry."TypeCode"                  AS type_code,
+    dsctry."DelistDate"                AS ctry_delist_date,
 
+    split_part(rkdi."ric", '.', 1)     AS ric_root,
+    split_part(rkdi."DisplayRIC", '.', 1)     AS display_ric_root,
     rkdi."IssueTypeCode"               AS issue_type_code,
     rkdi."IssueStatus"                 AS issue_status,
     rkdi."IssueOrder"                  AS issue_order,
-    rkdi."IssueName"                   AS issue_name,
+    rkdi."IssueName"                   AS issue_description,
     rkdi."ListingTypeCode"             AS listing_type_code,
     rkdi."Ticker"                      AS ticker,
     rkdi."Cusip"                       AS cusip,
@@ -52,8 +59,8 @@ SELECT DISTINCT
     rkdi."DFlag"                       AS d_flag,
     rkdi."InstrPI"                     AS instr_pi,
     rkdi."QuotePI"                     AS quote_pi,
-    rkdi."MostRecentSplit"             AS most_recent_split,
-    rkdi."MostRecentSplitDt"           AS most_recent_split_dt,
+    rkdi."MostRecentSplit"             AS split_factor,
+    rkdi."MostRecentSplitDt"           AS split_date,
     rkdi."ShPerListing"                AS sh_per_listing,
     'QA'                               AS source
 FROM {{ ref('stg_qa_security_mapping') }} AS sqsm
@@ -63,3 +70,4 @@ JOIN {{ source('raw', 'qa_RKDFndCmpRefIssue') }} AS rkdi
   ON rkdi."IssueCode" = sqsm.rkd_issue_code
 JOIN {{ source('raw', 'qa_DS2CtryQtInfo') }} AS dsctry
   ON dsctry."InfoCode" = sqsm.ds_info_code
+

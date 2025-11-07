@@ -1,26 +1,8 @@
 services:
-  workbench-postgres:
-    image: postgres:17
-    container_name: postgres-workbench
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: db_atonra
-    ports:
-      - "5435:5432"
-    volumes:
-      - workbench_postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U root -d db_atonra"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
-    networks:
-      - master-instrument-net
-
   postgres:
-    image: postgres:17
+    build:
+        context: .
+        dockerfile: docker/Dockerfile_postgres
     container_name: postgres-master-instrument
     restart: unless-stopped
     environment:

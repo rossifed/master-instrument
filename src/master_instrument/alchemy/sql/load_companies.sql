@@ -21,22 +21,23 @@ WITH stg_qa_company_with_id AS (
     sqc.tot_sh_out AS total_shares_outstanding,
     sqc.tot_sh_out_dt AS shares_outstanding_updated_at,
     sqc.tot_float AS total_float_shares,
-    1  AS estimates_currency_id, -- TODO: linked to rkdfndcode
-    1  AS statements_currency_id, -- TODO: linked to rkdfndcode
+    eci.currency_id   AS estimates_currency_id,
+    sci.currency_id   AS statements_currency_id, 
     sqc.last_mod_fin_dt AS last_modified_financial_at,
     sqc.last_mod_other_dt AS last_modified_non_financial_at,
     sqc.latest_fin_ann_dt AS latest_annual_financial_date,
-    1 AS entity_type_id
+    et.entity_type_id
   FROM staging.stg_qa_company sqc
+  join ref_data.entity_type et on et.mnemonic  = 'CMPY'
   LEFT JOIN ref_data.company_mapping cim 
     ON cim.external_company_id = sqc.external_id
    AND cim.source = sqc.source
   LEFT JOIN ref_data.country ctry
     ON ctry.code = sqc.iso_cntry_code
---  LEFT JOIN ref_data.currency eci 
- -- 	ON eci.code  = sqc.est_curr_code 
- -- LEFT JOIN ref_data.currency sci 
- -- 	ON sci.code  = sqc.fin_stmt_curr_code 
+  LEFT JOIN ref_data.currency eci 
+  	ON eci.code  = sqc.est_curr_code 
+  LEFT JOIN ref_data.currency sci 
+  	ON sci.code  = sqc.fin_stmt_curr_code 	
 ),
 merge_entity AS (
   MERGE INTO ref_data.entity AS tgt
@@ -51,7 +52,6 @@ merge_entity AS (
     VALUES (src.name, src.entity_type_id)
   RETURNING entity_id, src.external_id, src.source
 ),
-
 enriched_entity AS (
   SELECT
     me.entity_id,
@@ -60,7 +60,6 @@ enriched_entity AS (
   JOIN stg_qa_company_with_id src
     ON src.external_id = me.external_id
 ),
-
 merge_company AS (
   MERGE INTO ref_data.company AS tgt
   USING enriched_entity src
