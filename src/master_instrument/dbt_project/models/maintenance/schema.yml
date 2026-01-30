@@ -1,0 +1,147 @@
+version: 2
+
+models:
+  - name: mt_dead_tuples
+    description: |
+      Dead tuples statistics for raw and master schemas.
+      
+      **What are dead tuples?**
+      When PostgreSQL updates or deletes a row, it doesn't immediately remove the old version.
+      These old versions (dead tuples) accumulate and slow down queries.
+      
+      **How to interpret:**
+      - `OK`: No action needed
+      - `WARNING`: Consider running VACUUM soon (>100K dead tuples or >10%)
+      - `CRITICAL`: Run VACUUM immediately (>1M dead tuples or >30%)
+      
+      **Action:**
+      Run the command in `suggested_action` column for problematic tables.
+    columns:
+      - name: schemaname
+        description: Schema name (raw or master)
+      - name: table_name
+        description: Table name
+      - name: live_tuples
+        description: Number of live (visible) rows
+      - name: dead_tuples
+        description: Number of dead (invisible) rows waiting for VACUUM
+      - name: dead_pct
+        description: Percentage of dead tuples (dead / total * 100)
+      - name: last_vacuum
+        description: Last manual VACUUM timestamp
+      - name: last_autovacuum
+        description: Last automatic VACUUM timestamp
+      - name: last_analyze
+        description: Last manual ANALYZE timestamp
+      - name: status
+        description: Health status (OK, WARNING, CRITICAL)
+      - name: suggested_action
+        description: SQL command to run if action needed
+
+  - name: mt_table_sizes
+    description: |
+      Table and index sizes for raw and master schemas.
+      
+      Useful for:
+      - Monitoring disk usage growth
+      - Identifying large tables that may need partitioning
+      - Checking index overhead
+    columns:
+      - name: schemaname
+        description: Schema name
+      - name: table_name
+        description: Table name
+      - name: total_size
+        description: Total size (table + indexes + toast) human readable
+      - name: total_size_bytes
+        description: Total size in bytes (for sorting/calculations)
+      - name: table_size
+        description: Table data size only
+      - name: indexes_size
+        description: All indexes size combined
+      - name: toast_size
+        description: TOAST storage size (large values)
+      - name: estimated_rows
+        description: Estimated row count from pg_stat
+      - name: avg_row_size
+        description: Average row size
+
+  - name: mt_table_indexes
+    description: |
+      All indexes on raw and master schema tables.
+      
+      Useful for:
+      - Reviewing index coverage
+      - Identifying unused or duplicate indexes
+      - Checking index sizes
+    columns:
+      - name: schemaname
+        description: Schema name
+      - name: table_name
+        description: Table name
+      - name: index_name
+        description: Index name
+      - name: index_type
+        description: Index type (btree, hash, gin, etc.)
+      - name: index_size
+        description: Index size human readable
+      - name: index_size_bytes
+        description: Index size in bytes
+      - name: is_unique
+        description: Whether index enforces uniqueness
+      - name: is_primary
+        description: Whether index is primary key
+      - name: index_definition
+        description: Full CREATE INDEX statement
+
+  - name: mt_table_row_counts
+    description: |
+      Exact row counts for all master schema tables.
+      
+      Note: Uses COUNT(*) which can be slow on very large tables.
+      For quick estimates, use mt_table_sizes.estimated_rows instead.
+    columns:
+      - name: schemaname
+        description: Schema name (always 'master')
+      - name: table_name
+        description: Table name
+      - name: row_count
+        description: Exact row count
+  - name: mt_compression_policies
+    description: |
+      TimescaleDB compression policies status and schedules.
+      
+      Shows all compression policies configured on hypertables:
+      - Schedule interval and next execution time
+      - Configuration (compress_after threshold)
+      - Retry settings
+      
+      Useful for:
+      - Monitoring compression job schedules
+      - Verifying policies are active
+      - Checking next compression run time
+    columns:
+      - name: job_id
+        description: TimescaleDB internal job ID
+      - name: table_name
+        description: Hypertable name (schema.table)
+      - name: schedule_interval
+        description: How often the compression job runs
+      - name: next_start
+        description: Next scheduled execution time
+      - name: initial_start
+        description: Initial start time (anchor for schedule)
+      - name: scheduled
+        description: Whether the job is active
+      - name: fixed_schedule
+        description: Whether execution is at fixed times
+      - name: config
+        description: JSON config (compress_after setting)
+      - name: max_runtime
+        description: Maximum allowed runtime before job is killed
+      - name: max_retries
+        description: Number of retries on failure
+      - name: retry_period
+        description: Wait time between retries
+      - name: owner
+        description: Database role owning the job

@@ -1,0 +1,164 @@
+classification_level	pk_classification_level	16 kB	true	true	classification_scheme_id, level_number
+classification_level	uq_classification_level_scheme_name	16 kB	true	false	classification_scheme_id, name
+classification_level_history	master_classification_level_history_sys_period_idx	8192 bytes	false	false	sys_period
+classification_node	idx_classification_node_scheme_level	16 kB	false	false	classification_scheme_id, level_number
+classification_node	idx_classification_node_scheme_parent	16 kB	false	false	classification_scheme_id, parent_code
+classification_node	pk_classification_node	16 kB	true	true	classification_scheme_id, code
+classification_node	uq_classification_node_scheme_name_level	40 kB	true	false	classification_scheme_id, name, level_number
+classification_node_history	master_classification_node_history_sys_period_idx	8192 bytes	false	false	sys_period
+classification_scheme	pk_classification_scheme	16 kB	true	true	classification_scheme_id
+classification_scheme	uq_classification_scheme_mnemonic	16 kB	true	false	mnemonic
+classification_scheme	uq_classification_scheme_name	16 kB	true	false	name
+classification_scheme_history	master_classification_scheme_history_sys_period_idx	8192 bytes	false	false	sys_period
+company	pk_company	4568 kB	true	true	company_id
+company_history	master_company_history_sys_period_idx	8192 bytes	false	false	sys_period
+company_market_cap	pk_company_market_cap	320 MB	true	true	valuation_date, company_id
+company_market_cap_load	idx_company_market_cap_load_time	16 kB	false	false	loaded_at
+company_market_cap_load	pk_company_market_cap_load	16 kB	true	true	company_market_cap_load_id
+company_weblink	pk_company_weblink	8704 kB	true	true	company_weblink_id
+company_weblink	uq_company_weblink_company_type	8704 kB	true	false	company_id, weblink_type_id
+company_weblink_history	master_company_weblink_history_sys_period_idx	8192 bytes	false	false	sys_period
+corpact_adjustment	idx_corpact_adj_equity_dates	5776 kB	false	false	equity_id, adj_date, end_adj_date
+corpact_adjustment	pk_corpact_adjustment	7240 kB	true	true	equity_id, adj_date, adj_type
+corpact_adjustment_history	master_corpact_adjustment_history_sys_period_idx	8192 bytes	false	false	sys_period
+corpact_event	idx_corpact_event_corpact_type	872 kB	false	false	corpact_type_id
+corpact_event	idx_corpact_event_effective_date	1248 kB	false	false	effective_date
+corpact_event	idx_corpact_event_equity	1656 kB	false	false	equity_id
+corpact_event	idx_corpact_event_equity_eventsequence	2680 kB	false	false	equity_id, event_sequence
+corpact_event	pk_corpact_event	2680 kB	true	true	corpact_event_id
+corpact_event	uq_corpact_event_natural_key	3768 kB	true	false	equity_id, event_sequence, corpact_type_id, effective_date
+corpact_event_history	master_corpact_event_history_sys_period_idx	8192 bytes	false	false	sys_period
+corpact_type	pk_corpact_type	16 kB	true	true	corpact_type_id
+corpact_type	uq_corpact_type_code	16 kB	true	false	code
+corpact_type_history	master_corpact_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+country	pk_country	16 kB	true	true	country_id
+country	uq_country_code	16 kB	true	false	code
+country_history	master_country_history_sys_period_idx	8192 bytes	false	false	sys_period
+country_region	pk_country_region	16 kB	true	true	country_id, region_id
+country_region_history	master_country_region_history_sys_period_idx	8192 bytes	false	false	sys_period
+currency	pk_currency	16 kB	true	true	currency_id
+currency	uq_currency_code	16 kB	true	false	code
+currency_history	master_currency_history_sys_period_idx	8192 bytes	false	false	sys_period
+currency_pair	idx_currency_pair_base	8192 bytes	false	false	base_currency_id
+currency_pair	idx_currency_pair_quote	8192 bytes	false	false	quote_currency_id
+currency_pair	pk_currency_pair	8192 bytes	true	true	currency_pair_id
+currency_pair	uq_currency_pair_base_quote	8192 bytes	true	false	base_currency_id, quote_currency_id
+currency_pair_history	master_currency_pair_history_sys_period_idx	8192 bytes	false	false	sys_period
+data_source	pk_data_source	16 kB	true	true	data_source_id
+data_source	uq_data_source_mnemonic	16 kB	true	false	mnemonic
+data_source_history	master_data_source_history_sys_period_idx	8192 bytes	false	false	sys_period
+dividend	idx_dividend_currency	6288 kB	false	false	currency_id
+dividend	idx_dividend_equity_effectivedate	27 MB	false	false	equity_id, effective_date
+dividend	idx_dividend_type	6016 kB	false	false	dividend_type_id
+dividend	pk_dividend	20 MB	true	true	dividend_id
+dividend	uq_dividend_natural_key	33 MB	true	false	equity_id, event_sequence
+dividend_adjustment	pk_dividend_adjustment	2184 kB	true	true	equity_id, ex_div_date
+dividend_adjustment_history	master_dividend_adjustment_history_sys_period_idx	8192 bytes	false	false	sys_period
+dividend_history	master_dividend_history_sys_period_idx	8192 bytes	false	false	sys_period
+dividend_type	pk_dividend_type	16 kB	true	true	dividend_type_id
+dividend_type	uq_dividend_type_code	16 kB	true	false	code
+dividend_type_history	master_dividend_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+entity	idx_entity_name	6216 kB	false	false	name
+entity	idx_entity_type_id	1016 kB	false	false	entity_type_id
+entity	pk_entity	3072 kB	true	true	entity_id
+entity_classification	pk_entity_classification	1056 kB	true	true	entity_id, classification_scheme_id
+entity_classification_history	master_entity_classification_history_sys_period_idx	8192 bytes	false	false	sys_period
+entity_history	master_entity_history_sys_period_idx	8192 bytes	false	false	sys_period
+entity_mapping	pk_entity_mapping	3072 kB	true	true	internal_entity_id
+entity_mapping	uq_entity_mapping_ext_ds_type	4304 kB	true	false	external_entity_id, data_source_id, entity_type_id
+entity_mapping_history	master_entity_mapping_history_sys_period_idx	8192 bytes	false	false	sys_period
+entity_type	pk_entity_type	16 kB	true	true	entity_type_id
+entity_type	uq_entity_type_mnemonic	16 kB	true	false	mnemonic
+entity_type_history	master_entity_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+equity	idx_equity_cusip	2624 kB	false	false	cusip
+equity	idx_equity_isin	2568 kB	false	false	isin
+equity	idx_equity_ric	2016 kB	false	false	ric
+equity	idx_equity_sedol	1688 kB	false	false	sedol
+equity	idx_equity_ticker	1824 kB	false	false	ticker
+equity	idx_equity_type_id	416 kB	false	false	equity_type_id
+equity	pk_equity	1744 kB	true	true	equity_id
+equity_history	master_equity_history_sys_period_idx	8192 bytes	false	false	sys_period
+equity_type	pk_equity_type	16 kB	true	true	equity_type_id
+equity_type	uq_equity_type_description	16 kB	true	false	description
+equity_type	uq_equity_type_mnemonic	16 kB	true	false	mnemonic
+equity_type_history	master_equity_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+financial_period_type	pk_financial_period_type	16 kB	true	true	financial_period_type_id
+financial_period_type	uq_financial_period_type_mnemonic	16 kB	true	false	mnemonic
+financial_period_type	uq_financial_period_type_months	16 kB	true	false	months
+financial_period_type	uq_financial_period_type_name	16 kB	true	false	name
+financial_period_type_history	master_financial_period_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+financial_statement_type	pk_financial_statement_type	16 kB	true	true	financial_statement_type_id
+financial_statement_type	uq_financial_statement_type_mnemonic	16 kB	true	false	mnemonic
+financial_statement_type	uq_financial_statement_type_name	16 kB	true	false	name
+financial_statement_type_history	master_financial_statement_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+fx_rate	fx_rate_base_currency_id_rate_date_idx	8192 bytes	false	false	base_currency_id, rate_date
+fx_rate	idx_fx_rate_currencies	8192 bytes	false	false	base_currency_id, quote_currency_id
+fx_rate	idx_fx_rate_currencies_date_desc	8192 bytes	false	false	base_currency_id, quote_currency_id, rate_date
+fx_rate	idx_fx_rate_date	8192 bytes	false	false	rate_date
+fx_rate	idx_fx_rate_loaded_at	8192 bytes	false	false	loaded_at
+fx_rate	pk_fx_rate	8192 bytes	true	true	rate_date, base_currency_id, quote_currency_id
+instrument	idx_instrument_entity_id	2256 kB	false	false	entity_id
+instrument	idx_instrument_symbol	1720 kB	false	false	symbol
+instrument	idx_instrument_type_id	400 kB	false	false	instrument_type_id
+instrument	pk_instrument	1352 kB	true	true	instrument_id
+instrument_history	master_instrument_history_sys_period_idx	8192 bytes	false	false	sys_period
+instrument_mapping	idx_instrument_mapping_ext_ds_type	2400 kB	false	false	external_instrument_id, data_source_id, instrument_type_id
+instrument_mapping	pk_instrument_mapping	1352 kB	true	true	internal_instrument_id
+instrument_mapping	uq_instrument_mapping_source_type_ext	2432 kB	true	false	data_source_id, instrument_type_id, external_instrument_id
+instrument_mapping_history	master_instrument_mapping_history_sys_period_idx	8192 bytes	false	false	sys_period
+instrument_type	pk_instrument_type	16 kB	true	true	instrument_type_id
+instrument_type	uq_instrument_type_mnemonic	16 kB	true	false	mnemonic
+instrument_type_history	master_instrument_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+market_data	idx_market_data_quote_date_close	8192 bytes	false	false	quote_id, trade_date
+market_data	idx_market_data_quote_date_close_notnull	8192 bytes	false	false	quote_id, trade_date
+market_data	market_data_trade_date_idx	8192 bytes	false	false	trade_date
+market_data	pk_market_data	8192 bytes	true	true	trade_date, quote_id
+market_data_load	idx_market_data_load_time	8192 bytes	false	false	loaded_at
+market_data_load	pk_market_data_load	8192 bytes	true	true	market_data_load_id
+quote	idx_quote_instrument_id	4520 kB	false	false	instrument_id
+quote	idx_quote_instrument_primary	1608 kB	false	false	instrument_id
+quote	idx_quote_is_primary	2864 kB	false	false	is_primary
+quote	idx_quote_mic	3408 kB	false	false	mic
+quote	idx_quote_ric	7816 kB	false	false	ric
+quote	idx_quote_ticker	4136 kB	false	false	ticker
+quote	pk_quote	9912 kB	true	true	quote_id
+quote	uq_quote_instrument_venue	8288 kB	true	false	instrument_id, venue_id
+quote_history	master_quote_history_sys_period_idx	8192 bytes	false	false	sys_period
+quote_mapping	pk_quote_mapping	9912 kB	true	true	internal_quote_id
+quote_mapping	uq_quote_mapping_source_ext	17 MB	true	false	data_source_id, external_quote_id
+quote_mapping_history	master_quote_mapping_history_sys_period_idx	8192 bytes	false	false	sys_period
+region	pk_region	16 kB	true	true	region_id
+region	uq_region_code	16 kB	true	false	code
+region_history	master_region_history_sys_period_idx	8192 bytes	false	false	sys_period
+share_outstanding	idx_share_outstanding_equity_date	158 MB	false	false	equity_id, date
+share_outstanding	pk_share_outstanding	158 MB	true	true	date, equity_id
+std_financial_filing	pk_std_financial_filing	161 MB	true	true	std_financial_filing_id
+std_financial_filing	uq_std_financial_filing_company_period	226 MB	true	false	company_id, period_end_date, filing_end_date, period_type_id
+std_financial_filing_history	master_std_financial_filing_history_sys_period_idx	8192 bytes	false	false	sys_period
+std_financial_item	idx_std_financial_item_name	112 kB	false	false	name
+std_financial_item	pk_std_financial_item	72 kB	true	true	std_financial_item_id
+std_financial_item_history	master_std_financial_item_history_sys_period_idx	72 kB	false	false	sys_period
+std_financial_item_mapping	idx_std_financial_item_mapping_ext_source	8192 bytes	false	false	external_item_id, data_source_id
+std_financial_item_mapping	pk_std_financial_item_mapping	8192 bytes	true	true	internal_item_id
+std_financial_item_mapping	uq_std_financial_item_mapping_source_ext	8192 bytes	true	false	data_source_id, external_item_id
+std_financial_item_mapping_history	master_std_financial_item_mapping_history_sys_period_idx	8192 bytes	false	false	sys_period
+std_financial_statement	idx_std_financial_statement_type	229 MB	false	false	statement_type_id
+std_financial_statement	pk_std_financial_statement	790 MB	true	true	std_financial_statement_id
+std_financial_statement	uq_std_financial_statement_filing_type	768 MB	true	false	std_financial_filing_id, statement_type_id
+std_financial_statement_history	master_std_financial_statement_history_sys_period_idx	1274 MB	false	false	sys_period
+std_financial_value	pk_std_financial_value	8192 bytes	true	true	std_financial_value_id
+std_financial_value_load	idx_std_financial_value_load_time	8192 bytes	false	false	loaded_at
+std_financial_value_load	pk_std_financial_value_load	8192 bytes	true	true	std_financial_value_load_id
+venue	pk_venue	16 kB	true	true	venue_id
+venue	uq_venue_mnemonic	16 kB	true	false	mnemonic
+venue_history	master_venue_history_sys_period_idx	8192 bytes	false	false	sys_period
+venue_mapping	idx_venue_mapping_ext_ds_type	16 kB	false	false	external_venue_id, data_source_id, venue_type_id
+venue_mapping	pk_venue_mapping	16 kB	true	true	internal_venue_id
+venue_mapping	uq_venue_mapping_source_type_ext	16 kB	true	false	data_source_id, venue_type_id, external_venue_id
+venue_mapping_history	master_venue_mapping_history_sys_period_idx	8192 bytes	false	false	sys_period
+venue_type	pk_venue_type	16 kB	true	true	venue_type_id
+venue_type	uq_venue_type_mnemonic	16 kB	true	false	mnemonic
+venue_type_history	master_venue_type_history_sys_period_idx	8192 bytes	false	false	sys_period
+weblink_type	pk_weblink_type	16 kB	true	true	weblink_type_id
+weblink_type	uq_weblink_type_description	16 kB	true	false	description
+weblink_type_history	master_weblink_type_history_sys_period_idx	8192 bytes	false	false	sys_period

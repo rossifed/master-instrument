@@ -1,0 +1,107 @@
+{#
+  Template: CDC Changes processing (INSERT/UPDATE/DELETE)
+  
+  Params:
+    - target_table: target table
+    - source_table: int_xxx_changes view with sys_change_operation
+    - unique_key: PK columns list (must be a list, even if single column)
+    - columns: all columns (PK + data)
+    - data_columns: non-PK columns (computed Python-side)
+    - tracking_table: table for metrics (optional)
+    - audit: AuditConfig optional - adds created_at, updated_at, deleted_at
+    - with_soft_delete: bool - UPDATE deleted_at instead of DELETE
+    - hard_delete: bool - physical DELETE (default behavior)
+    - is_hypertable: bool - If true, disables TimescaleDB decompression limit
+#}
+{%- from 'macros/audit.j2' import audit_insert_columns, audit_insert_values, audit_update_set %}
+{%- if is_hypertable %}
+
+-- TimescaleDB: Set decompression limit for bulk operations on hypertables
+SET timescaledb.max_tuples_decompressed_per_dml_transaction = {{ hypertable_decompression_limit }};
+{%- endif %}
+
+-- Step 0: Materialize changes to temp table (avoids view re-execution)
+CREATE TEMP TABLE changes_temp AS
+SELECT * FROM {{ source_table }};
+
+-- Step 1: Handle DELETE operations (only if there are deletes to process)
+{%- if with_soft_delete %}
+-- Soft delete: UPDATE deleted_at for rows marked D
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM changes_temp WHERE sys_change_operation = 'D' LIMIT 1) THEN
+        UPDATE {{ target_table }} tgt
+        SET deleted_at = CURRENT_TIMESTAMP
+        FROM changes_temp src
+        WHERE {% for key in unique_key %}tgt.{{ key }} = src.{{ key }}{{ " AND" if not loop.last else "" }}{% endfor %}
+          AND src.sys_change_operation = 'D';
+    END IF;
+END $$;
+{%- elif hard_delete or not audit %}
+-- Hard delete: physical DELETE (skip if no deletes)
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM changes_temp WHERE sys_change_operation = 'D' LIMIT 1) THEN
+        DELETE FROM {{ target_table }} tgt
+        USING changes_temp src
+        WHERE {% for key in unique_key %}tgt.{{ key }} = src.{{ key }}{{ " AND " if not loop.last else "" }}{% endfor %}
+          AND src.sys_change_operation = 'D';
+    END IF;
+END $$;
+{%- endif %}
+
+-- Step 2: UPSERT new/updated rows
+INSERT INTO {{ target_table }} (
+    {%- for col in columns %}
+    {{ col }}{{ "," if not loop.last or audit else "" }}
+    {%- endfor %}
+    {%- if audit %}
+    {{ audit_insert_columns(audit.with_created_at, audit.with_updated_at, audit.with_deleted_at) }}
+    {%- endif %}
+)
+SELECT
+    {%- for col in columns %}
+    {{ col }}{{ "," if not loop.last or audit else "" }}
+    {%- endfor %}
+    {%- if audit %}
+    {{ audit_insert_values(audit.with_created_at, audit.with_updated_at, audit.with_deleted_at) }}
+    {%- endif %}
+FROM changes_temp
+WHERE sys_change_operation IS NULL
+   OR sys_change_operation IN ('I', 'U')
+ON CONFLICT ({% for key in unique_key %}{{ key }}{{ ", " if not loop.last else "" }}{% endfor %})
+{%- if data_columns or audit %}
+DO UPDATE SET
+    {%- if data_columns %}
+    {%- for col in data_columns %}
+    {{ col }} = EXCLUDED.{{ col }}{{ "," if not loop.last or audit else "" }}
+    {%- endfor %}
+    {%- endif %}
+    {%- if audit %}
+    {{ audit_update_set(audit.with_created_at, audit.with_updated_at, audit.with_deleted_at) }}
+    {%- endif %}
+{%- else %}
+DO NOTHING
+{%- endif %};
+
+{%- if tracking_table %}
+-- Step 3: Record load metrics (only if there were changes)
+INSERT INTO {{ tracking_table }} (
+    last_source_version,
+    rows_inserted,
+    rows_updated,
+    rows_deleted,
+    loaded_at
+)
+SELECT
+    COALESCE(MAX(sys_change_version), MAX(last_loaded_version)),
+    COUNT(*) FILTER (WHERE sys_change_operation IS NULL OR sys_change_operation = 'I'),
+    COUNT(*) FILTER (WHERE sys_change_operation = 'U'),
+    COUNT(*) FILTER (WHERE sys_change_operation = 'D'),
+    CURRENT_TIMESTAMP
+FROM changes_temp
+HAVING COUNT(*) > 0;
+{%- endif %}
+
+-- Cleanup
+DROP TABLE changes_temp;

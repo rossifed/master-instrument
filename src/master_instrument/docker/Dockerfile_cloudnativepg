@@ -1,0 +1,49 @@
+# --- Stage 1: Build extensions ---
+FROM ghcr.io/cloudnative-pg/postgresql:17 AS builder
+
+USER root
+
+# Install build dependencies
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    postgresql-server-dev-17 \
+    curl \
+    git \
+    cmake \
+    libssl-dev \
+    libkrb5-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# 1. Build TimescaleDB
+RUN git clone --branch 2.17.2 https://github.com/timescale/timescaledb.git /tmp/timescaledb \
+    && cd /tmp/timescaledb \
+    && ./bootstrap -DREGRESS_CHECKS=OFF -DWARNINGS_AS_ERRORS=OFF \
+    && cd build && make -j$(nproc) && make install
+
+# 2. Build temporal_tables
+RUN git clone https://github.com/arkhipov/temporal_tables.git /tmp/temporal_tables \
+    && cd /tmp/temporal_tables \
+    && make && make install
+
+# --- Stage 2: Final image ---
+FROM ghcr.io/cloudnative-pg/postgresql:17
+
+USER root
+
+# Copy TimescaleDB
+COPY --from=builder /usr/lib/postgresql/17/lib/timescaledb*.so /usr/lib/postgresql/17/lib/
+COPY --from=builder /usr/share/postgresql/17/extension/timescaledb* /usr/share/postgresql/17/extension/
+
+# Copy temporal_tables
+COPY --from=builder /usr/lib/postgresql/17/lib/temporal_tables.so /usr/lib/postgresql/17/lib/
+COPY --from=builder /usr/share/postgresql/17/extension/temporal_tables* /usr/share/postgresql/17/extension/
+
+# Set proper ownership for CNPG
+RUN chown -R 26:26 /usr/lib/postgresql/17/lib/ /usr/share/postgresql/17/extension/
+
+# CNPG runs as user 26 (postgres)
+USER 26
+
+# CloudNativePG images are designed for Kubernetes operator, not standalone docker-compose.
+# For local testing with docker-compose, use docker/Dockerfile_postgres instead.
+# This image is intended to be used with CloudNativePG operator in Kubernetes.

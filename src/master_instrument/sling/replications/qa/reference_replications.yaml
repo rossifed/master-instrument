@@ -1,0 +1,192 @@
+# config/sling/referential/refinitive_replications.yaml
+source: QA_MSSQL
+target: REFERENTIAL_POSTGRES
+
+defaults:
+  mode: truncate
+  object: raw.qa_{stream_table}
+  schema: raw
+
+streams:
+  dbo.DS2Company:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2company
+        group: "reference"
+  dbo.DS2Security:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2security
+        group: "reference"
+  dbo.DS2CtryQtInfo:
+    sql: |
+      SELECT
+        *
+      FROM dbo.DS2CtryQtInfo QT
+      JOIN vw_SecurityMappingX X
+        ON X.vencode = QT.InfoCode
+        AND X.ventype = 33 AND X.rank = 1
+        AND X.EndDate > GETDATE()
+        AND X.StartDate = (
+        SELECT MAX(I.StartDate)
+        FROM vw_SecurityMappingX AS I
+        WHERE I.typ = X.typ AND I.vencode = X.vencode AND I.ventype = X.ventype
+        )
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2ctryqtinfo
+        group: "reference"
+  dbo.RKDFndCmpRefIssue:
+    sql: |
+      SELECT
+        *
+      FROM RKDFndCmpRefIssue R
+      JOIN vw_SecurityMappingX X
+        ON X.vencode = R.IssueCode
+        AND X.ventype = 26
+        AND X.rank = 1
+        AND X.EndDate > GETDATE()
+        AND X.StartDate = (
+        SELECT MAX(I.StartDate)
+        FROM vw_SecurityMappingX AS I
+        WHERE I.typ = X.typ AND I.vencode = X.vencode AND I.ventype = X.ventype
+        )
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndcmprefissue
+        group: "reference"
+  dbo.PermOrgRef:
+    sql: |
+      SELECT
+          *
+      FROM PermOrgRef AS por
+      WHERE por.PriRptEntityCode IS NOT NULL
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_permorgref
+        group: "reference" 
+  dbo.PermQuoteRef:
+    sql: |
+         SELECT
+            pqr.*, pr.ric
+          FROM PermQuoteRef AS pqr
+          JOIN DS2CtryQtInfo AS dcqi
+              ON dcqi.DsCode = pqr.DsQuoteNumber
+          JOIN DS2ExchQtInfo AS deqi
+              ON deqi.InfoCode = dcqi.InfoCode
+          JOIN DS2Exchange AS de
+              ON de.ExchMnem = pqr.ExchCode
+            AND de.ExchIntCode = deqi.ExchIntCode
+          JOIN PermRICData pr on pr.QuotePermID  = pqr.QuotePermID 
+          WHERE pr.StartDate = (
+                    SELECT MAX(pr2.StartDate)
+                    FROM PermRICData AS pr2
+                    WHERE pr2.QuotePermID = pr.QuotePermID
+                )
+            AND pr.EndDate > GETDATE() 
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_permquoteref
+        group: "reference"            
+  dbo.PermInstrRef:
+    sql: |
+      SELECT
+          *
+      FROM PermInstrRef AS pir
+      WHERE pir.TypeCode = 'EQUITY'
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_perminstrref
+        group: "reference"   
+  dbo.PermOrgInfo:
+    sql: |
+      SELECT
+          poi.*
+      FROM PermOrgInfo AS poi
+      JOIN PermOrgRef AS por
+          ON por.OrgPermID = poi.OrgPermID
+      WHERE por.PriRptEntityCode IS NOT NULL
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_permorginfo
+        group: "reference"         
+  dbo.RKDFndCmpFiling:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndcmpfiling
+        group: "reference"
+  dbo.RKDFndCmpPhone:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndcmpphone
+        group: "reference"      
+  dbo.RKDFndCmpDet:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndcmpdet
+        group: "reference"     
+  dbo.RKDFndCmpRef:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndcmpref
+        group: "reference"
+  dbo.RKDFndInfo:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndinfo
+        group: "reference"          
+  dbo.RKDFndCmpWebLink:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndcmpweblink
+        group: "reference"  
+  dbo.DS2Exchange:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2exchange
+        group: "reference"
+  dbo.DS2ExchQtInfo:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2exchqtinfo
+        group: "reference"
+  dbo.DS2XRef:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2xref
+        group: "reference"
+  dbo.RKDFndCode:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfndcode
+        group: "reference"
+  dbo.DS2Adj:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2adj
+        group: "reference"
+  dbo.DS2CapEvent:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2capevent
+        group: "reference"
+  dbo.DS2Div:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2div
+        group: "reference"
+  dbo.DS2FxCode:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2fxcode
+        group: "reference"        
+  dbo.DS2NumShares:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_ds2numshares
+        group: "reference" 
+  dbo.RKDFndDesc:
+    meta:
+      dagster:
+        asset_key: raw.qa.reference.qa_rkdfnddesc
+        group: "reference" 

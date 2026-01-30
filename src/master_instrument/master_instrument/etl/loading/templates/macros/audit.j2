@@ -1,0 +1,40 @@
+{#
+  Macros for granular audit column management
+  
+  Each macro accepts the 3 independent flags:
+    - with_created_at: bool
+    - with_updated_at: bool  
+    - with_deleted_at: bool
+  
+  Usage:
+    {% raw %}{% from 'macros/audit.j2' import audit_insert_columns, audit_insert_values, audit_update_set %}{% endraw %}
+    
+    INSERT avec created_at + updated_at:
+    INSERT INTO table (id, name, created_at, updated_at)
+    VALUES (1, 'foo', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+#}
+
+{# Retourne les noms des colonnes d'audit pour INSERT (sans virgule initiale) #}
+{% macro audit_insert_columns(with_created_at=False, with_updated_at=False, with_deleted_at=False) -%}
+{%- if with_created_at %}created_at{{ "," if with_updated_at or with_deleted_at else "" }}{% endif -%}
+{%- if with_updated_at %}updated_at{{ "," if with_deleted_at else "" }}{% endif -%}
+{%- if with_deleted_at %}deleted_at{% endif -%}
+{%- endmacro %}
+
+{# Retourne les valeurs pour les colonnes d'audit lors d'un INSERT (sans virgule initiale) #}
+{% macro audit_insert_values(with_created_at=False, with_updated_at=False, with_deleted_at=False) -%}
+{%- if with_created_at %}CURRENT_TIMESTAMP{{ "," if with_updated_at or with_deleted_at else "" }}{% endif -%}
+{%- if with_updated_at %}CURRENT_TIMESTAMP{{ "," if with_deleted_at else "" }}{% endif -%}
+{%- if with_deleted_at %}NULL{% endif -%}
+{%- endmacro %}
+
+{# Retourne le SET pour UPDATE des colonnes d'audit (sans virgule finale) #}
+{% macro audit_update_set(with_created_at=False, with_updated_at=False, with_deleted_at=False) -%}
+{%- if with_updated_at %}updated_at = CURRENT_TIMESTAMP{{ "," if with_deleted_at else "" }}{% endif -%}
+{%- if with_deleted_at %}deleted_at = NULL{% endif -%}
+{%- endmacro %}
+
+{# Check if at least one audit column is enabled #}
+{% macro has_audit_columns(with_created_at=False, with_updated_at=False, with_deleted_at=False) -%}
+{{ with_created_at or with_updated_at or with_deleted_at }}
+{%- endmacro %}

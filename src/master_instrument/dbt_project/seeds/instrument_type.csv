@@ -1,0 +1,6 @@
+instrument_type_id,mnemonic,name
+1,"EQU","Equity"
+2,"BND","Bond"
+3,"CRY","Cryptocurrency"
+4,"FUT","Future"
+5,"FND","Fund"

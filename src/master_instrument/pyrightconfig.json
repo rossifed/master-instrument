@@ -1,0 +1,18 @@
+{
+  "include": ["master_instrument", "tests", "alembic"],
+  "exclude": ["**/__pycache__", "**/dbt_packages", "**/target", "**/dagster_home"],
+  "extraPaths": ["."],
+  "venvPath": "../..",
+  "venv": ".venv",
+  "reportUnknownArgumentType": "warning",
+  "reportUnknownVariableType": "warning",
+  "reportUnknownMemberType": "warning",
+  "reportMissingTypeStubs": "none",
+  "executionEnvironments": [
+    {
+      "root": "tests/unit/loading",
+      "reportUnknownArgumentType": "none",
+      "reportUnknownVariableType": "none"
+    }
+  ]
+}

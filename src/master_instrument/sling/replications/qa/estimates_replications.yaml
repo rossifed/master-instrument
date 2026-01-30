@@ -1,0 +1,48 @@
+# config/sling/referential/qa_fundamental_replications.yaml
+source: QA_MSSQL
+target: REFERENTIAL_POSTGRES
+
+defaults:
+  mode: truncate
+  object: raw.qa_{stream_table}
+  schema: raw
+
+streams:
+  dbo.vw_IBES2Actuals:
+    mode: truncate
+    meta:
+      dagster:
+        asset_key: raw.qa.estimates.qa_vw_ibes2actuals
+        group: "estimates"
+  
+  dbo.TREProdActRpt:
+    mode: truncate
+    update_key: LoadDate  # Ajuste selon la colonne timestamp
+    source_options:
+      chunk_size: 500k
+      initial_value: '{TIMESERIES_START_DATE}'
+    meta:
+      dagster:
+        asset_key: raw.qa.estimates.qa_treprodactrpt
+        group: "estimates"
+  
+  dbo.TREProdInfo:
+    mode: truncate
+    meta:
+      dagster:
+        asset_key: raw.qa.estimates.qa_treprodinfo
+        group: "estimates"
+  dbo.vw_IBES2Mapping:
+    sql: |
+      SELECT * FROM dbo.vw_IBES2Mapping
+    meta:
+      dagster:
+        asset_key: raw.qa.estimates.qa_vw_ibes2mapping
+        group: "estimates"
+  
+
+env:
+  SLING_THREADS: '${SLING_THREADS}'
+  SLING_STATE: '${SLING_STATE}'
+  TIMESERIES_START_DATE: '${TIMESERIES_START_DATE}'
+  CHANGE_TRACKING_INITIAL_VERSION: '${CHANGE_TRACKING_INITIAL_VERSION}'

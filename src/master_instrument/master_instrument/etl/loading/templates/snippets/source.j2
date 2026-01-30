@@ -1,0 +1,23 @@
+{#
+  CTE: Source query
+  
+  Generates the source_query CTE with optional batch filtering.
+  Isolated block - no dependencies on other blocks.
+  
+  Params:
+    - source_table: table/vue source
+    - batch: BatchConfig optionnel (avec batch_date_column)
+    - order_by: ORDER BY optionnel
+#}
+
+source_query AS (
+    SELECT *
+    FROM {{ source_table }}
+{%- if batch and batch.batch_date_column %}
+    WHERE {{ batch.batch_date_column }} >= :start_date
+      AND {{ batch.batch_date_column }} <= :end_date
+{%- endif %}
+{%- if order_by %}
+    ORDER BY {{ order_by }}
+{%- endif %}
+),

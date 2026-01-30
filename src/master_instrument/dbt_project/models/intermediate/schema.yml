@@ -1,0 +1,368 @@
+version: 2
+
+models:
+  - name: int_equity
+    description: "Intermediate equity data with company mapping and instrument type resolution"
+    columns:
+      - name: entity_id
+        description: "Internal company ID (required - equities must have a parent company)"
+        data_tests:
+          - not_null:
+              severity: error
+              error_if: ">0"
+      
+      - name: instrument_type_id
+        description: "Instrument type ID (required - always EQU for equities)"
+        data_tests:
+          - not_null:
+              severity: error
+              error_if: ">0"
+      
+      - name: external_instrument_id
+        description: "External instrument identifier from source"
+        data_tests:
+          - not_null:
+              severity: error
+      
+      - name: data_source_id
+        description: "Data source identifier"
+        data_tests:
+          - not_null:
+              severity: error
+
+  - name: int_company
+    description: "Intermediate company data with entity type resolution"
+    columns:
+      - name: entity_type_id
+        description: "Entity type ID (required - always COMPANY)"
+        data_tests:
+          - not_null:
+              severity: error
+      
+      - name: external_entity_id
+        description: "External entity identifier from source"
+        data_tests:
+          - not_null:
+              severity: error
+      
+      - name: data_source_id
+        description: "Data source identifier"
+        data_tests:
+          - not_null:
+              severity: error
+
+  - name: int_currency
+    description: "Consolidated currency data from multiple sources"
+    columns:
+      - name: code
+        description: "Currency code (ISO 4217)"
+        data_tests:
+          - not_null
+          - unique
+      
+      - name: name
+        description: "Currency name/description"
+        data_tests:
+          - not_null:
+              severity: error
+              error_if: ">0"
+
+  - name: int_classification_node
+    description: "Classification nodes with resolved hierarchy and level numbers"
+    columns:
+      - name: classification_scheme_id
+        description: "Classification scheme identifier"
+        data_tests:
+          - not_null
+      
+      - name: code
+        description: "Node code (unique within scheme)"
+        data_tests:
+          - not_null
+      
+      - name: level_number
+        description: "Hierarchy level (calculated from recursive CTE)"
+        data_tests:
+          - not_null
+
+  - name: int_classification_level
+    description: "Classification levels with scheme resolution"
+    columns:
+      - name: classification_scheme_id
+        description: "Classification scheme identifier"
+        data_tests:
+          - not_null
+      
+      - name: level_number
+        description: "Level number within scheme"
+        data_tests:
+          - not_null
+      
+      - name: name
+        description: "Level name"
+        data_tests:
+          - not_null
+  - name: int_quote
+    description: "Intermediate quote data with instrument and venue resolution"
+    columns:
+      - name: instrument_id
+        description: "Internal instrument ID"
+        data_tests:
+          - not_null
+      - name: venue_id
+        description: "Internal venue ID"
+        data_tests:
+          - not_null
+      - name: currency_id
+        description: "Currency ID"
+        data_tests:
+          - not_null
+      - name: external_quote_id
+        description: "External quote identifier"
+        data_tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        data_tests:
+          - not_null
+      - name: is_primary
+        description: "Is primary quote for instrument"
+        data_tests:
+          - not_null
+
+  - name: int_venue
+    description: "Intermediate venue data with type resolution"
+    columns:
+      - name: external_venue_id
+        description: "External venue identifier"
+        data_tests:
+          - not_null
+      - name: venue_type_id
+        description: "Venue type ID"
+        data_tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        data_tests:
+          - not_null
+
+  - name: int_company_weblink
+    description: "Intermediate company weblinks"
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - company_id
+            - weblink_type_id
+    columns:
+      - name: company_id
+        description: "Internal company ID"
+        data_tests:
+          - not_null
+      - name: weblink_type_id
+        description: "Weblink type ID"
+        data_tests:
+          - not_null
+      - name: url
+        description: "Weblink URL"
+        data_tests:
+          - not_null
+
+  - name: int_dividend
+    description: "Intermediate dividend data"
+    columns:
+      - name: equity_id
+        description: "Internal equity ID"
+        data_tests:
+          - not_null
+      - name: event_sequence
+        description: "Dividend event sequence"
+        data_tests:
+          - not_null
+      - name: dividend_type_id
+        description: "Dividend type ID"
+        data_tests:
+          - not_null
+      - name: currency_id
+        description: "Currency ID"
+        data_tests:
+          - not_null
+      - name: effective_date
+        description: "Dividend effective date"
+        data_tests:
+          - not_null
+
+  # Tests disabled for high-volume models - validation via DB constraints at load time
+  - name: int_market_data_full
+    description: "Intermediate full market data"
+
+  - name: int_market_data_changes
+    description: "Intermediate market data changes (CDC)"
+
+  - name: int_total_return_full
+    description: "Intermediate full total return index data"
+
+  - name: int_total_return_changes
+    description: "Intermediate total return index changes (CDC)"
+
+  - name: int_fx_rate
+    description: "Intermediate FX rate data"
+    columns:
+      - name: rate_date
+        description: "Rate date"
+        data_tests:
+          - not_null
+      - name: base_currency_id
+        description: "Base currency ID"
+        data_tests:
+          - not_null
+      - name: quote_currency_id
+        description: "Quote currency ID"
+        data_tests:
+          - not_null
+      - name: mid_rate
+        description: "Mid rate (calculated if not provided)"
+        data_tests:
+          - not_null
+
+  - name: int_corpact_event
+    description: "Intermediate corporate action events"
+    columns:
+      - name: equity_id
+        description: "Internal equity ID"
+        data_tests:
+          - not_null
+      - name: event_sequence
+        description: "Event sequence number"
+        data_tests:
+          - not_null
+      - name: corpact_type_id
+        description: "Corporate action type ID"
+        data_tests:
+          - not_null
+      - name: effective_date
+        description: "Event effective date"
+        data_tests:
+          - not_null
+
+  - name: int_corpact_adjustment
+    description: "Intermediate corporate action adjustments"
+    columns:
+      - name: equity_id
+        description: "Internal equity ID"
+        data_tests:
+          - not_null
+      - name: adj_date
+        description: "Adjustment date"
+        data_tests:
+          - not_null
+      - name: adj_type
+        description: "Adjustment type"
+        data_tests:
+          - not_null
+      - name: adj_factor
+        description: "Adjustment factor"
+        data_tests:
+          - not_null
+
+  - name: int_std_financial_filing
+    description: "Intermediate standardized financial filings"
+    columns:
+      - name: company_id
+        description: "Internal company ID"
+        data_tests:
+          - not_null
+      - name: period_type_id
+        description: "Period type ID"
+        data_tests:
+          - not_null
+      - name: period_end_date
+        description: "Period end date"
+        data_tests:
+          - not_null
+      - name: filing_end_date
+        description: "Filing end date"
+        data_tests:
+          - not_null
+
+  - name: int_std_financial_statement
+    description: "Intermediate standardized financial statements"
+    columns:
+      - name: std_financial_filing_id
+        description: "Financial filing ID"
+        data_tests:
+          - not_null
+      - name: statement_type_id
+        description: "Statement type ID"
+        data_tests:
+          - not_null
+
+  - name: int_std_financial_item
+    description: "Intermediate standardized financial items"
+    columns:
+      - name: std_financial_item_id
+        description: "Financial item ID"
+        data_tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Item name"
+        data_tests:
+          - not_null
+
+  # Tests disabled for high-volume models - validation via DB constraints at load time
+  - name: int_std_financial_value_full
+    description: "Intermediate full standardized financial values"
+
+  - name: int_std_financial_value_changes
+    description: "Intermediate standardized financial value changes (CDC)"
+
+  - name: int_share_outstanding
+    description: "Intermediate shares outstanding data"
+    columns:
+      - name: equity_id
+        description: "Internal equity ID"
+        data_tests:
+          - not_null
+      - name: date
+        description: "Effective date"
+        data_tests:
+          - not_null
+      - name: number_of_shares
+        description: "Number of shares"
+        data_tests:
+          - not_null
+
+  # Tests disabled for high-volume models - validation via DB constraints at load time
+  - name: int_company_market_cap_full
+    description: "Intermediate full company market cap"
+
+  - name: int_company_market_cap_changes
+    description: "Intermediate company market cap changes (CDC)"
+
+  - name: int_country_region
+    description: "Intermediate country-region mapping"
+    columns:
+      - name: country_id
+        description: "Country ID"
+        data_tests:
+          - not_null
+      - name: region_id
+        description: "Region ID"
+        data_tests:
+          - not_null
+
+  - name: int_entity_classification
+    description: "Intermediate entity classification mapping"
+    columns:
+      - name: entity_id
+        description: "Entity ID"
+        data_tests:
+          - not_null
+      - name: classification_scheme_id
+        description: "Classification scheme ID"
+        data_tests:
+          - not_null
+      - name: classification_node_code
+        description: "Classification node code"
+        data_tests:
+          - not_null

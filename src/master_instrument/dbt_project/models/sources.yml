@@ -1,0 +1,428 @@
+sources:
+  - name: raw
+    schema: raw
+    tables:
+      # ===================
+      # MARKET ASSETS
+      # ===================
+      - name: qa_DS2PrimQtPrc
+        meta:
+          dagster:
+            asset_key: ["raw", "full", "qa", "market", "qa_ds2primqtprc_full"]
+
+      - name: qa_DS2PrimQtPrc_Changes
+        meta:
+           dagster:
+            asset_key: ["raw", "qa", "market", "qa_ds2primqtprc_changes"]
+
+      - name: qa_DS2PrimQtRI
+        meta:
+          dagster:
+            asset_key: ["raw", "full", "qa", "market", "qa_ds2primqtri_full"]
+
+      - name: qa_DS2PrimQtRI_Changes
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "market", "qa_ds2primqtri_changes"]
+
+      - name: qa_DS2MktVal
+        meta:
+          dagster:
+            asset_key: ["raw", "full", "qa", "market", "qa_ds2mktval_full"]
+
+      - name: qa_DS2MktVal_Changes
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "market", "qa_ds2mktval_changes"]      
+
+      - name: qa_DS2FxRate
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "market", "qa_ds2fxrate"]
+
+      # ===================
+      # REFERENCE ASSETS
+      # ===================
+      - name: qa_DS2Div
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2div"]
+
+      - name: qa_DS2NumShares
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2numshares"]
+
+      - name: qa_DS2Adj
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2adj"]
+
+      - name: qa_DS2CapEvent
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2capevent"]
+
+      - name: qa_DS2Security
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2security"]
+
+      - name: qa_DS2Company
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2company"]
+
+      - name: qa_DS2CtryQtInfo
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2ctryqtinfo"]
+
+      - name: qa_RKDFndCmpRefIssue
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndcmprefissue"]
+
+      - name: qa_RKDFndCmpFiling
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndcmpfiling"]
+
+      - name: qa_RKDFndCmpDet
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndcmpdet"]
+
+      - name: qa_RKDFndCmpRef
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndcmpref"]
+
+      - name: qa_RKDFndCmpWebLink
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndcmpweblink"]
+
+      - name: qa_RKDFndCmpPhone
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndcmpphone"]
+
+      - name: qa_DS2Exchange
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2exchange"]
+
+      - name: qa_DS2ExchQtInfo
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2exchqtinfo"]
+
+      - name: qa_DS2XRef
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_ds2xref"]
+
+      - name: qa_RKDFndCode
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndcode"]
+      
+      - name: qa_RKDFndDesc
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfnddesc"]
+      
+      - name: qa_RKDFndInfo
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_rkdfndinfo"]
+
+      - name: qa_PermOrgRef
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_permorgref"]
+
+      - name: qa_PermInstrRef
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_perminstrref"]
+
+      - name: qa_PermQuoteRef
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_permquoteref"]
+
+      - name: qa_PermOrgInfo
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "reference", "qa_permorginfo"]
+
+      - name: qa_vw_IBES2Mapping
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "estimates", "qa_vw_ibes2mapping"]
+
+      # ===================
+      # FUNDAMENTAL ASSETS
+      # ===================
+      - name: qa_RKDFndStdPerFiling
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "fundamental", "qa_rkdfndstdperfiling"]
+
+      - name: qa_RKDFndStdPeriod
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "fundamental", "qa_rkdfndstdperiod"]
+
+      - name: qa_RKDFndStdStmt
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "fundamental", "qa_rkdfndstdstmt"]
+
+      - name: qa_RKDFndStdFinVal
+        meta:
+          dagster:
+            asset_key: ["raw", "full", "qa", "fundamental", "qa_rkdfndstdfinval_full"]
+
+      - name: qa_RKDFndStdFinVal_Changes
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "fundamental", "qa_rkdfndstdfinval_changes"]
+
+      - name: qa_RKDFndStdItem
+        meta:
+          dagster:
+            asset_key: ["raw", "qa", "fundamental", "qa_rkdfndstditem"]
+
+      # ===================
+      # S3 ASSETS
+      # ===================
+      - name: wb_news
+        meta:
+          dagster:
+            asset_key: ["raw", "wb_news"]
+      
+      - name: s3_gics_classification
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_gics_classification"]
+
+      - name: s3_regions_master
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_regions_master"]
+
+      - name: s3_theme_software
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_software"]
+
+      - name: s3_theme_biotech
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_biotech"]
+
+      - name: s3_theme_artificial_intelligence
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_artificial_intelligence"]
+
+      - name: s3_theme_sustainable_future
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_sustainable_future"]
+
+      - name: s3_theme_cybersecurity
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_cybersecurity"]
+
+      - name: s3_theme_securityspace
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_securityspace"]
+
+      - name: s3_theme_mobilepayments
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_mobilepayments"]
+
+      - name: s3_theme_blockchain
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_blockchain"]
+
+      - name: s3_theme_bionics
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_bionics"]
+
+      - name: s3_theme_fintech
+        meta:
+          dagster:
+            asset_key: ["raw", "s3", "s3_atonra_theme_fintech"]
+
+  - name: master
+    schema: master
+    tables:
+      - name: market_data
+        meta:
+          dagster:
+            asset_key: ["master", "market", "market_data"]
+      - name: entity_classification
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "entity_classification"]
+      - name: classification_scheme
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "classification_scheme"]
+      - name: classification_node
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "classification_node"]
+      - name: classification_level
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "classification_level"]                  
+      - name: quote
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "quote"]
+      
+      - name: equity
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "equity"]
+      
+      - name: corpact_adjustment
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "corpact_adjustment"]
+      
+      - name: dividend_adjustment
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "dividend_adjustment"]
+      
+      - name: instrument
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "instrument"]
+      
+      - name: entity
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "entity"]
+      
+      - name: company
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "company"]
+
+      - name: currency
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "currency"]
+      
+      - name: company_weblink
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "company_weblink"]
+      
+      - name: venue
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "venue"]
+      
+      - name: venue_type
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "venue_type"]
+      
+      - name: country
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "country"]
+      
+      - name: instrument_type
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "instrument_type"]
+      
+      - name: equity_type
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "equity_type"]
+      
+      - name: std_financial_value
+        meta:
+          dagster:
+            asset_key: ["master", "fundamental", "std_financial_value"]
+      
+      - name: std_financial_statement
+        meta:
+          dagster:
+            asset_key: ["master", "fundamental", "std_financial_statement"]
+      
+      - name: std_financial_item
+        meta:
+          dagster:
+            asset_key: ["master", "fundamental", "std_financial_item"]
+      
+      - name: financial_statement_type
+        meta:
+          dagster:
+            asset_key: ["master", "fundamental", "financial_statement_type"]
+      
+      - name: std_financial_filing
+        meta:
+          dagster:
+            asset_key: ["master", "fundamental", "std_financial_filing"]
+      
+      - name: financial_period_type
+        meta:
+          dagster:
+            asset_key: ["master", "fundamental", "financial_period_type"]
+      
+      - name: share_outstanding
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "share_outstanding"]
+
+      - name: company_market_cap
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "company_market_cap"]
+
+      - name: dividend
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "dividend"]
+
+      - name: dividend_type
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "dividend_type"]
+
+      - name: corpact_event
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "corpact_event"]
+
+      - name: corpact_type
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "corpact_type"]
+
+      - name: entity_type
+        meta:
+          dagster:
+            asset_key: ["master", "reference", "entity_type"]
+
+      - name: fx_rate
+        meta:
+          dagster:
+            asset_key: ["master", "market", "fx_rate"]

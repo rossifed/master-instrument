@@ -1,0 +1,113 @@
+{#
+  CTE: Inheritance - Child MERGE (after parent)
+  
+  Generates the MERGE for the child table, using the parent IDs.
+  Requires: existing merge_parent CTE.
+  
+  With mapping:
+    The child must be updated even if the parent hasn't changed.
+    We use COALESCE to:
+    - New entities: take the ID from merge_parent (INSERT)
+    - Existing entities: take the ID from entity_mapping
+  
+  Without mapping:
+    Uses only merge_parent (old behavior).
+  
+  Params:
+    - inheritance: InheritanceConfig
+    - source_cte: CTE source original
+    - audit: AuditConfig optionnel
+    - mapping: MappingConfig optionnel
+#}
+{# Calcule les colonnes data (non-PK) du child #}
+{%- set child_data_cols = [] %}
+{%- for col in inheritance.child_columns %}
+{%- if col != inheritance.child_unique_key %}
+{%- set _ = child_data_cols.append(col) %}
+{%- endif %}
+{%- endfor %}
+{%- if mapping %}
+{# With mapping: COALESCE allows updating the child even if parent unchanged #}
+enriched_parent AS (
+    SELECT
+        COALESCE(mp.{{ inheritance.parent_unique_key }}, em.{{ mapping.mapping_internal_column }}) AS {{ inheritance.parent_unique_key }},
+        src.*
+    FROM {{ source_cte }} src
+    LEFT JOIN merge_parent mp
+      ON src.{{ mapping.source_external_id_column }} = mp.{{ mapping.source_external_id_column }}
+    LEFT JOIN {{ mapping.mapping_table }} em
+      ON em.{{ mapping.mapping_external_column }} = src.{{ mapping.source_external_id_column }}
+      AND em.{{ mapping.data_source_column }} = src.{{ mapping.data_source_column }}
+{%- set type_col = mapping.source_type_column if mapping.source_type_column else mapping.mapping_type_column %}
+{%- if type_col %}
+      AND em.{{ mapping.mapping_type_column }} = src.{{ type_col }}
+{%- endif %}
+),
+{%- else %}
+{# Sans mapping: utilise uniquement merge_parent #}
+enriched_parent AS (
+    SELECT
+        mp.{{ inheritance.parent_unique_key }},
+        src.*
+    FROM merge_parent mp
+    CROSS JOIN {{ source_cte }} src
+),
+{%- endif %}
+merge_child AS (
+    MERGE INTO {{ inheritance.child_table }} AS tgt
+    USING enriched_parent AS src
+    ON tgt.{{ inheritance.child_unique_key }} = src.{{ inheritance.parent_unique_key }}
+{%- if child_data_cols %}
+    WHEN MATCHED
+        AND (
+{%- for col in child_data_cols %}
+            tgt.{{ col }} IS DISTINCT FROM src.{{ col }}{{ " OR" if not loop.last else "" }}
+{%- endfor %}
+        )
+    THEN
+        UPDATE SET
+{%- for col in child_data_cols %}
+            {{ col }} = src.{{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- if audit and audit.with_updated_at %},
+            updated_at = CURRENT_TIMESTAMP
+{%- endif %}
+{%- endif %}
+    WHEN NOT MATCHED THEN
+        INSERT (
+            {{ inheritance.child_unique_key }},
+{%- for col in child_data_cols %}
+            {{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- if audit %}
+{%- if audit.with_created_at %},
+            created_at
+{%- endif %}
+{%- if audit.with_updated_at %},
+            updated_at
+{%- endif %}
+{%- endif %}
+        )
+        VALUES (
+            src.{{ inheritance.parent_unique_key }},
+{%- for col in child_data_cols %}
+            src.{{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- if audit %}
+{%- if audit.with_created_at %},
+            CURRENT_TIMESTAMP
+{%- endif %}
+{%- if audit.with_updated_at %},
+            CURRENT_TIMESTAMP
+{%- endif %}
+{%- endif %}
+        )
+{%- if mapping %}
+{%- set type_col = mapping.source_type_column if mapping.source_type_column else mapping.mapping_type_column -%}
+{%- if type_col %}
+    RETURNING tgt.{{ inheritance.child_unique_key }}, src.{{ mapping.source_external_id_column }}, src.{{ mapping.data_source_column }}, src.{{ type_col }}
+{%- else %}
+    RETURNING tgt.{{ inheritance.child_unique_key }}, src.{{ mapping.source_external_id_column }}, src.{{ mapping.data_source_column }}
+{%- endif %}
+{%- endif %}
+),

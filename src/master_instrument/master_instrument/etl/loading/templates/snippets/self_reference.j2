@@ -1,0 +1,56 @@
+{#
+  Snippet: Self-reference FK UPDATE
+  
+  Separate UPDATE statement to resolve circular FKs.
+  Runs after the main MERGE/UPSERT.
+  
+  Required context (variables from parent template):
+    - target_table: target table
+    - source_table: source table/view
+    - unique_key: table PK column
+    - self_reference: SelfReferenceConfig avec:
+        - columns: dict {target_col: source_col}
+        - requires_mapping: bool
+    - mapping: MappingConfig (si requires_mapping=True)
+#}
+{%- if self_reference and self_reference.columns %}
+{%- set ext_id_col = mapping.source_external_id_column if mapping else None %}
+{%- set uk = unique_key if unique_key is string else unique_key[0] if unique_key else None %}
+{%- set type_col = mapping.source_type_column if mapping and mapping.source_type_column else mapping.mapping_type_column if mapping else None %}
+
+-- Update self-referencing columns (circular dependencies resolved)
+-- Only update if at least one column value actually changed
+UPDATE {{ target_table }} tgt
+SET
+{%- for target_col, external_col in self_reference.columns.items() %}
+{%- if self_reference.requires_mapping %}
+    {{ target_col }} = src.{{ target_col }}{{ "," if not loop.last else "" }}
+{%- else %}
+    {{ target_col }} = src_ref.{{ uk }}{{ "," if not loop.last else "" }}
+{%- endif %}
+{%- endfor %}
+FROM {{ source_table }} src
+{%- if self_reference.requires_mapping and mapping %}
+JOIN {{ mapping.mapping_table }} self_map
+  ON self_map.{{ mapping.mapping_external_column }} = src.{{ ext_id_col }}
+ AND self_map.{{ mapping.data_source_column }} = src.{{ mapping.data_source_column }}
+{%- if type_col %}
+ AND self_map.{{ mapping.mapping_type_column }} = src.{{ type_col }}
+{%- endif %}
+WHERE tgt.{{ uk }} = self_map.{{ mapping.mapping_internal_column }}
+  AND (
+{%- for target_col, external_col in self_reference.columns.items() %}
+      tgt.{{ target_col }} IS DISTINCT FROM src.{{ target_col }}{{ " OR" if not loop.last else "" }}
+{%- endfor %}
+  );
+{%- else %}
+LEFT JOIN {{ target_table }} src_ref
+  ON src_ref.{{ uk }} = src.{{ self_reference.columns.values() | first }}
+WHERE tgt.{{ uk }} = src.{{ uk }}
+  AND (
+{%- for target_col, external_col in self_reference.columns.items() %}
+      tgt.{{ target_col }} IS DISTINCT FROM src_ref.{{ uk }}{{ " OR" if not loop.last else "" }}
+{%- endfor %}
+  );
+{%- endif %}
+{%- endif %}

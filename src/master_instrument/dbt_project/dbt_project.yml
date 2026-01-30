@@ -1,0 +1,46 @@
+name: master_instrument
+version: 1.0
+config-version: 2
+profile: staging_profile
+
+model-paths: ["models"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Global variables
+vars:
+  # Minimum date for all data (FX, prices, fundamentals)
+  # CRITICAL: All sources requiring FX conversions must respect this date
+  # to ensure exchange rate availability
+  min_data_date: '2000-01-01'
+  
+  # Initial CDC version watermark - prevents loading all historical data on first run
+  # Set to the minimum sys_change_version you want to start from
+  change_tracking_initial_version: "{{ env_var('CHANGE_TRACKING_INITIAL_VERSION', '5000') }}"
+
+models:
+  master_instrument:
+    staging:
+      +schema: staging
+      +materialized: view
+    intermediate:
+      +schema: intermediate
+      +materialized: view
+    master:
+      +schema: master
+      +materialized: view
+
+seeds:
+  master_instrument:      
+    +schema: staging 
+    +quote_columns: false
+    classification_node:
+      +column_types:
+        code: varchar
+        parent_code: varchar

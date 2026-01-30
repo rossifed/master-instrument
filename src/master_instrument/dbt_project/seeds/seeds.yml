@@ -1,0 +1,100 @@
+seeds:
+  - name: currency
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "currency"]
+          group: reference
+
+  - name: country
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "country"]
+          group: reference
+
+  - name: classification_level
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "classification_level"]
+          group: reference
+
+  - name: classification_node
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "classification_node"]
+          group: reference
+
+  - name: classification_scheme
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "classification_scheme"]
+          group: reference
+
+  - name: entity_type
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "entity_type"]
+          group: reference
+
+  - name: instrument_type
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "instrument_type"]
+          group: reference
+
+  - name: region
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "region"]
+          group: reference
+
+  - name: venue_type
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "venue_type"]
+          group: reference
+  - name: data_source
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "data_source"]
+          group: reference
+  - name: financial_period_type
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "financial_period_type"]
+          group: fundamental
+  - name: financial_period_type_mapping
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "financial_period_type_mapping"]
+          group: fundamental
+  - name: financial_statement_type
+    config:
+      schema: seed
+      meta:
+        dagster:
+          asset_key: ["seed", "financial_statement_type"]
+          group: fundamental

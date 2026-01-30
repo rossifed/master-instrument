@@ -1,0 +1,4 @@
+venue_type_id,mnemonic,name
+1,EXCH,Exchange
+2,OTC,Over The Counter
+3,AGGR,Aggregated

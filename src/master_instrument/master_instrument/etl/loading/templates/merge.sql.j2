@@ -1,0 +1,63 @@
+{#
+  Template: MERGE - Composable orchestrator
+  
+  Isolated block architecture:
+  - snippets/source.j2: Source query with batch filtering
+  - snippets/merge_core.j2: Simple MERGE
+  - snippets/inheritance_parent.j2 + inheritance_child.j2: Inheritance pattern
+  - snippets/mapping.j2: Mapping table
+  - snippets/self_reference.j2: Circular FKs
+  
+  Principle: Each block is isolated and testable.
+  Adding an extension = adding an include, not modifying existing code.
+  
+  Required params:
+    - target_table, source_table, unique_key, columns, data_columns
+  
+  Optional params (extensions):
+    - inheritance, mapping, self_reference, audit
+    - with_soft_delete, hard_delete, batch, order_by
+#}
+{%- set pk_str = unique_key if unique_key is string else unique_key[0] -%}
+{%- set source_cte = 'source_query' -%}
+{%- if is_hypertable %}
+
+-- TimescaleDB: Set decompression limit for bulk operations on hypertables
+SET timescaledb.max_tuples_decompressed_per_dml_transaction = {{ hypertable_decompression_limit }};
+{%- endif %}
+{#- ============= BLOC 1: Source CTE ============= -#}
+WITH
+{%- include 'snippets/source.j2' %}
+{#- ============= BLOC 2: MERGE ============= -#}
+{%- if inheritance %}
+{%- include 'snippets/inheritance_parent.j2' %}
+{%- include 'snippets/inheritance_child.j2' %}
+{%- if mapping %}
+{#- For inheritance, mapping uses merge_parent which returns entity_id -#}
+{%- set source_cte = 'merge_parent' -%}
+{%- set internal_id_column = inheritance.parent_unique_key -%}
+{%- include 'snippets/mapping.j2' %}
+{%- endif %}
+{%- elif mapping %}
+{#- Mapping case: uses merge_core with returning_clause -#}
+{#- Prefix pk with tgt. to avoid ambiguity when src has the same column -#}
+{%- set type_col = mapping.source_type_column if mapping.source_type_column else mapping.mapping_type_column -%}
+{%- if type_col -%}
+{%- set returning_clause = 'tgt.' ~ pk_str ~ ', src.' ~ mapping.source_external_id_column ~ ', src.' ~ mapping.data_source_column ~ ', src.' ~ type_col -%}
+{%- else -%}
+{%- set returning_clause = 'tgt.' ~ pk_str ~ ', src.' ~ mapping.source_external_id_column ~ ', src.' ~ mapping.data_source_column -%}
+{%- endif -%}
+{%- include 'snippets/merge_core.j2' %},
+{%- set internal_id_column = pk_str -%}
+{%- set source_cte = 'merge_result' -%}
+{%- include 'snippets/mapping.j2' %}
+{%- else %}
+{%- include 'snippets/merge_core.j2' %}
+{%- endif %}
+SELECT 1;
+{# ============= BLOC 3: Self-reference ============= #}
+{%- if inheritance -%}
+{%- set target_table = inheritance.child_table -%}
+{%- set unique_key = inheritance.child_unique_key -%}
+{%- endif -%}
+{% include 'snippets/self_reference.j2' %}

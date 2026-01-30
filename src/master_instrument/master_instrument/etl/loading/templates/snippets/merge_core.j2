@@ -1,0 +1,89 @@
+{#
+  CTE: Core MERGE statement
+  
+  Generates a simple MERGE without inheritance or mapping.
+  Isolated block - knows nothing about extensions.
+  
+  Required params:
+    - target_table: target table
+    - source_cte: source CTE name (e.g., "source_query")
+    - unique_key: PK column(s) - string or list
+    - columns: column list (PK + data)
+    - data_columns: non-PK columns
+    
+  Optional params:
+    - audit: AuditConfig
+    - with_soft_delete: bool
+    - hard_delete: bool
+    - returning_clause: columns to return
+    - source_unique_key: if different from unique_key in source
+#}
+{%- set source_key = source_unique_key if source_unique_key else unique_key %}
+{%- set pk_list = [unique_key] if unique_key is string else unique_key %}
+{%- set src_pk_list = [source_key] if source_key is string else source_key %}
+merge_result AS (
+    MERGE INTO {{ target_table }} AS tgt
+    USING {{ source_cte }} AS src
+    ON {% for i in range(pk_list|length) %}{% if not loop.first %}
+   AND {% endif %}src.{{ src_pk_list[i] }} = tgt.{{ pk_list[i] }}{% endfor %}
+{%- if data_columns or audit %}
+    WHEN MATCHED{% if with_soft_delete %} AND tgt.deleted_at IS NULL{% endif %}
+        AND (
+{%- for col in data_columns %}
+            tgt.{{ col }} IS DISTINCT FROM src.{{ col }}{{ " OR" if not loop.last else "" }}
+{%- endfor %}
+        )
+    THEN
+        UPDATE SET
+{%- for col in data_columns %}
+            {{ col }} = src.{{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+            {%- if audit and audit.with_updated_at -%},
+            updated_at = CURRENT_TIMESTAMP{%- endif %}
+{%- endif %}
+    WHEN NOT MATCHED THEN
+        INSERT (
+{%- for col in columns %}
+            {{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+            {%- if audit -%}
+            {%- if audit.with_created_at -%},
+            created_at{%- endif -%}
+            {%- if audit.with_updated_at -%},
+            updated_at{%- endif -%}
+            {%- if audit.with_deleted_at -%},
+            deleted_at{%- endif -%}
+            {%- endif %}
+        )
+        VALUES (
+{%- for col in columns %}
+            {%- if source_unique_key and col in pk_list -%}
+                {%- set pk_idx = pk_list.index(col) %}
+            src.{{ src_pk_list[pk_idx] }}{{ "," if not loop.last else "" }}
+            {%- else %}
+            src.{{ col }}{{ "," if not loop.last else "" }}
+            {%- endif %}
+{%- endfor %}
+            {%- if audit -%}
+            {%- if audit.with_created_at -%},
+            CURRENT_TIMESTAMP{%- endif -%}
+            {%- if audit.with_updated_at -%},
+            CURRENT_TIMESTAMP{%- endif -%}
+            {%- if audit.with_deleted_at -%},
+            NULL{%- endif -%}
+            {%- endif %}
+        )
+{%- if with_soft_delete or hard_delete %}
+    WHEN NOT MATCHED BY SOURCE{% if with_soft_delete %} AND tgt.deleted_at IS NULL{% endif %} THEN
+        {%- if hard_delete %}
+        DELETE
+        {%- else %}
+        UPDATE SET
+            deleted_at = CURRENT_TIMESTAMP,
+            updated_at = CURRENT_TIMESTAMP
+        {%- endif %}
+{%- endif %}
+{%- if returning_clause %}
+    RETURNING {{ returning_clause }}
+{%- endif %}
+)

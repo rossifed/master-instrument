@@ -1,0 +1,45 @@
+{#
+  CTE: Mapping table INSERT
+  
+  Inserts into the mapping table (external_id <-> internal_id).
+  Isolated block - can be added to any template with RETURNING.
+  
+  Params:
+    - mapping: MappingConfig with:
+        - mapping_table: mapping table
+        - data_source_column: source column
+        - mapping_type_column: type column (entity_type_id, instrument_type_id, venue_type_id) - optional
+        - source_type_column: type column in source - optional
+        - mapping_external_column: external column
+        - mapping_internal_column: internal column
+        - source_external_id_column: source external column
+    - source_cte: CTE with returned IDs
+    - internal_id_column: internal ID column in source_cte
+#}
+{%- set internal_col = internal_id_column if internal_id_column else mapping.mapping_internal_column %}
+{%- set type_col = mapping.source_type_column if mapping.source_type_column else mapping.mapping_type_column %}
+
+update_mapping AS (
+    INSERT INTO {{ mapping.mapping_table }} (
+        {{ mapping.data_source_column }},
+{%- if mapping.mapping_type_column %}
+        {{ mapping.mapping_type_column }},
+{%- endif %}
+        {{ mapping.mapping_external_column }},
+        {{ mapping.mapping_internal_column }}
+    )
+    SELECT
+        {{ mapping.data_source_column }},
+{%- if type_col %}
+        {{ type_col }},
+{%- endif %}
+        {{ mapping.source_external_id_column }},
+        {{ internal_col }}
+    FROM {{ source_cte }}
+{%- if mapping.mapping_type_column %}
+    ON CONFLICT ({{ mapping.data_source_column }}, {{ mapping.mapping_type_column }}, {{ mapping.mapping_external_column }})
+{%- else %}
+    ON CONFLICT ({{ mapping.data_source_column }}, {{ mapping.mapping_external_column }})
+{%- endif %}
+    DO NOTHING
+)

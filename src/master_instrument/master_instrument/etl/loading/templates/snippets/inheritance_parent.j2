@@ -1,0 +1,72 @@
+{#
+  CTE: Inheritance - Parent MERGE
+  
+  Generates the MERGE for the parent table in an inheritance pattern.
+  Isolated block - used only for inheritance.
+  
+  Params:
+    - inheritance: InheritanceConfig avec parent_table, parent_unique_key, parent_columns, source_parent_key
+    - source_cte: CTE source
+    - audit: AuditConfig optionnel
+    - mapping: MappingConfig optionnel (pour RETURNING)
+#}
+
+{#- Build list of parent data columns (excluding PK) for change detection -#}
+{%- set parent_data_cols = [] %}
+{%- for col in inheritance.parent_columns if col != inheritance.parent_unique_key %}
+{%- set _ = parent_data_cols.append(col) %}
+{%- endfor %}
+merge_parent AS (
+    MERGE INTO {{ inheritance.parent_table }} AS tgt
+    USING {{ source_cte }} AS src
+    ON src.{{ inheritance.source_parent_key }} = tgt.{{ inheritance.parent_unique_key }}
+    WHEN MATCHED
+        AND (
+{%- for col in parent_data_cols %}
+            tgt.{{ col }} IS DISTINCT FROM src.{{ col }}{{ " OR" if not loop.last else "" }}
+{%- endfor %}
+        )
+    THEN
+        UPDATE SET
+{%- for col in parent_data_cols %}
+            {{ col }} = src.{{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- if audit and audit.with_updated_at %},
+            updated_at = CURRENT_TIMESTAMP
+{%- endif %}
+    WHEN NOT MATCHED THEN
+        INSERT (
+{%- for col in inheritance.parent_columns if col != inheritance.parent_unique_key %}
+            {{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- if audit %}
+{%- if audit.with_created_at %},
+            created_at
+{%- endif %}
+{%- if audit.with_updated_at %},
+            updated_at
+{%- endif %}
+{%- endif %}
+        )
+        VALUES (
+{%- for col in inheritance.parent_columns if col != inheritance.parent_unique_key %}
+            src.{{ col }}{{ "," if not loop.last else "" }}
+{%- endfor %}
+{%- if audit %}
+{%- if audit.with_created_at %},
+            CURRENT_TIMESTAMP
+{%- endif %}
+{%- if audit.with_updated_at %},
+            CURRENT_TIMESTAMP
+{%- endif %}
+{%- endif %}
+        )
+{%- set type_col = mapping.source_type_column if mapping and mapping.source_type_column else (mapping.mapping_type_column if mapping else None) -%}
+{%- if mapping and type_col %}
+    RETURNING tgt.{{ inheritance.parent_unique_key }}, src.{{ mapping.source_external_id_column }}, src.{{ mapping.data_source_column }}, src.{{ type_col }}
+{%- elif mapping %}
+    RETURNING tgt.{{ inheritance.parent_unique_key }}, src.{{ mapping.source_external_id_column }}, src.{{ mapping.data_source_column }}
+{%- else %}
+    RETURNING tgt.{{ inheritance.parent_unique_key }}
+{%- endif %}
+),

@@ -1,0 +1,45 @@
+{#
+  CTE: Core INSERT statement
+  
+  Generates a simple INSERT.
+  Isolated block - knows nothing about extensions.
+  
+  Required params:
+    - target_table: target table
+    - source_cte: source CTE name
+    - columns: column list
+    
+  Optional params:
+    - audit: AuditConfig
+    - returning_clause: columns to return
+    - source_column_mapping: dict for renaming source columns
+#}
+insert_result AS (
+    INSERT INTO {{ target_table }} (
+        {% for col in columns %}{{ col }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit -%}
+        {%- if audit.with_created_at -%},created_at{%- endif -%}
+        {%- if audit.with_updated_at -%},updated_at{%- endif -%}
+        {%- if audit.with_deleted_at -%},deleted_at{%- endif -%}
+        {%- endif -%}
+    )
+    SELECT
+        {% for col in columns -%}
+        {%- if source_column_mapping -%}
+            {{ source_column_mapping.get(col, col) }}
+        {%- else -%}
+            {{ col }}
+        {%- endif -%}
+        {{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit -%}
+        {%- if audit.with_created_at -%},CURRENT_TIMESTAMP{%- endif -%}
+        {%- if audit.with_updated_at -%},CURRENT_TIMESTAMP{%- endif -%}
+        {%- if audit.with_deleted_at -%},NULL{%- endif -%}
+        {%- endif -%}
+    FROM {{ source_cte }}
+{%- if returning_clause %}
+    RETURNING {{ returning_clause }}
+{%- endif %}
+)

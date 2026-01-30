@@ -1,0 +1,5 @@
+financial_period_type_id,mnemonic,name,months
+1,A,"Annual",12
+2,Q,"Quarterly",3
+3,S,"Semi-Annual",6
+4,T,"Triannual",4

@@ -1,0 +1,47 @@
+{#
+  CTE: Inheritance - Parent UPSERT
+  
+  Generates the UPSERT for the parent table in an inheritance pattern.
+  Isolated block - used only for inheritance.
+  
+  Params:
+    - inheritance: InheritanceConfig avec parent_table, parent_unique_key, parent_columns, source_parent_key
+    - source_cte: CTE source
+    - audit: AuditConfig optionnel
+    - mapping: MappingConfig optionnel (pour RETURNING)
+#}
+upsert_parent AS (
+    INSERT INTO {{ inheritance.parent_table }} (
+        {% for col in inheritance.parent_columns if col != inheritance.parent_unique_key %}{{ col }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit -%}
+        {%- if audit.with_created_at -%},created_at{%- endif -%}
+        {%- if audit.with_updated_at -%},updated_at{%- endif -%}
+        {%- endif -%}
+    )
+    SELECT
+        {% for col in inheritance.parent_columns if col != inheritance.parent_unique_key %}{{ col }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit -%}
+        {%- if audit.with_created_at -%},CURRENT_TIMESTAMP{%- endif -%}
+        {%- if audit.with_updated_at -%},CURRENT_TIMESTAMP{%- endif -%}
+        {%- endif -%}
+    FROM {{ source_cte }}
+    ON CONFLICT ({{ inheritance.source_parent_key }})
+    DO UPDATE SET
+        {% for col in inheritance.parent_columns if col != inheritance.parent_unique_key %}{{ col }} = EXCLUDED.{{ col }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit and audit.with_updated_at -%},updated_at = CURRENT_TIMESTAMP{%- endif %}
+    WHERE
+{%- for col in inheritance.parent_columns if col != inheritance.parent_unique_key %}
+        {{ inheritance.parent_table.split('.')[-1] }}.{{ col }} IS DISTINCT FROM EXCLUDED.{{ col }}{{ " OR" if not loop.last else "" }}
+{%- endfor %}
+{%- set type_col = mapping.source_type_column if mapping and mapping.source_type_column else (mapping.mapping_type_column if mapping else None) -%}
+{%- if mapping and type_col %}
+    RETURNING {{ inheritance.parent_unique_key }}, src.{{ mapping.source_external_id_column }}, src.{{ mapping.data_source_column }}, src.{{ type_col }}
+{%- elif mapping %}
+    RETURNING {{ inheritance.parent_unique_key }}, src.{{ mapping.source_external_id_column }}, src.{{ mapping.data_source_column }}
+{%- else %}
+    RETURNING {{ inheritance.parent_unique_key }}
+{%- endif %}
+)

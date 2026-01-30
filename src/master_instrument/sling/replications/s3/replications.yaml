@@ -1,0 +1,72 @@
+source: S3_FUNDY_DEV
+target: REFERENTIAL_POSTGRES
+
+defaults:
+  mode: truncate
+  object: raw.s3_{stream_file_name}
+  schema: raw
+
+streams:
+  dagster/gics_classification.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_gics_classification
+        group: s3
+  dagster/theme_software.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_software
+        group: s3
+  dagster/theme_biotech.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_biotech
+        group: s3
+  dagster/theme_artificial_intelligence.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_artificial_intelligence
+        group: s3
+  dagster/theme_sustainable_future.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_sustainable_future
+        group: s3
+  dagster/theme_cybersecurity.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_cybersecurity
+        group: s3
+  dagster/theme_securityspace.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_securityspace
+        group: s3
+  dagster/theme_mobilepayments.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_mobilepayments
+        group: s3
+  dagster/theme_blockchain.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_blockchain
+        group: s3
+  dagster/theme_bionics.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_bionics
+        group: s3
+  dagster/theme_fintech.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_atonra_theme_fintech
+        group: s3
+  dagster/regions_master.csv:
+    meta:
+      dagster:
+        asset_key: raw.s3.s3_regions_master
+        group: s3
+    source_options:
+      delimiter: ";"
+  

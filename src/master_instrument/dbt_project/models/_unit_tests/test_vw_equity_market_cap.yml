@@ -1,0 +1,37 @@
+# Unit test for equity market cap calculation
+# Test case: Alphabet Inc. (equity_id: 2261)
+# Validates: market_cap = close_price × shares_outstanding (forward-filled via range join)
+
+unit_tests:
+  - name: test_equity_market_cap_calculation
+    description: |
+      Validates equity market cap calculation with forward-filled shares.
+      Tests that market_cap = close_price × shares_outstanding.
+      Uses real reference data from Alphabet Inc. (equity_id: 2261).
+    model: vw_equity_market_cap
+    given:
+      - input: source('master', 'market_data')
+        rows:
+          - {quote_id: 1, trade_date: '2026-01-12', close: 331.86011, currency_id: 1}
+          - {quote_id: 1, trade_date: '2026-01-09', close: 328.57007, currency_id: 1}
+          - {quote_id: 1, trade_date: '2025-12-31', close: 313.0, currency_id: 1}
+          - {quote_id: 1, trade_date: '2025-09-30', close: 305.0, currency_id: 1}
+          - {quote_id: 1, trade_date: '2025-09-29', close: 300.0, currency_id: 1}
+      - input: source('master', 'quote')
+        rows:
+          - {quote_id: 1, instrument_id: 1, is_primary: true, currency_id: 1}
+      - input: source('master', 'share_outstanding')
+        rows:
+          # Shares change on 2025-09-30 from 5817000 to 5818000
+          - {equity_id: 1, date: '2025-07-16', number_of_shares: 5817000}
+          - {equity_id: 1, date: '2025-09-30', number_of_shares: 5818000}
+    expect:
+      rows:
+        # After 2025-09-30: shares = 5818000
+        - {equity_id: 1, valuation_date: '2026-01-12', close_price: 331.86011, shares_outstanding: 5818000, market_cap: 1930762119.98, is_shares_publication_date: false, currency_id: 1}
+        - {equity_id: 1, valuation_date: '2026-01-09', close_price: 328.57007, shares_outstanding: 5818000, market_cap: 1911620667.26, is_shares_publication_date: false, currency_id: 1}
+        - {equity_id: 1, valuation_date: '2025-12-31', close_price: 313.0, shares_outstanding: 5818000, market_cap: 1821034000.0, is_shares_publication_date: false, currency_id: 1}
+        # On 2025-09-30: is_shares_publication_date = true (new shares published)
+        - {equity_id: 1, valuation_date: '2025-09-30', close_price: 305.0, shares_outstanding: 5818000, market_cap: 1774490000.0, is_shares_publication_date: true, currency_id: 1}
+        # Before 2025-09-30: shares = 5817000 (previous value forward-filled)
+        - {equity_id: 1, valuation_date: '2025-09-29', close_price: 300.0, shares_outstanding: 5817000, market_cap: 1745100000.0, is_shares_publication_date: false, currency_id: 1}

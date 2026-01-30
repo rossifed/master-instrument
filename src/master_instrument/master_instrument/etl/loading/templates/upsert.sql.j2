@@ -1,0 +1,68 @@
+{#
+  Template: UPSERT - Composable orchestrator
+  
+  Isolated block architecture:
+  - snippets/source.j2: Source query with batch filtering
+  - snippets/upsert_core.j2: Simple UPSERT
+  - snippets/upsert_inheritance_parent.j2 + upsert_inheritance_child.j2: Inheritance pattern
+  - snippets/mapping.j2: Mapping table
+  - snippets/self_reference.j2: Circular FKs
+  
+  Principle: Each block is isolated and testable.
+  Adding an extension = adding an include, not modifying existing code.
+  
+  Params obligatoires:
+    - target_table, source_table, unique_key, columns, data_columns
+  
+  Params optionnels (extensions):
+    - inheritance, mapping, self_reference, audit
+    - with_soft_delete, hard_delete, batch, order_by
+#}
+{%- from 'macros/soft_delete.j2' import soft_delete_update, hard_delete_statement %}
+{%- set pk_str = unique_key if unique_key is string else unique_key[0] %}
+{%- set source_cte = 'source_query' %}
+{%- if is_hypertable %}
+
+-- TimescaleDB: Set decompression limit for bulk operations on hypertables
+SET timescaledb.max_tuples_decompressed_per_dml_transaction = {{ hypertable_decompression_limit }};
+{%- endif %}
+
+{#- ============= BLOC 1: Source CTE ============= -#}
+WITH
+{%- include 'snippets/source.j2' %}
+{#- ============= BLOC 2: UPSERT ============= -#}
+{%- if inheritance %}
+{%- include 'snippets/upsert_inheritance_parent.j2' %}
+{%- include 'snippets/upsert_inheritance_child.j2' %}
+{%- if mapping %}
+{%- include 'snippets/mapping.j2' with context %}
+{%- endif %}
+{%- elif mapping %}
+{#- Cas mapping: utilise upsert_core avec returning_clause -#}
+{%- set type_col = mapping.source_type_column if mapping.source_type_column else mapping.mapping_type_column -%}
+{%- if type_col -%}
+{%- set returning_clause = pk_str ~ ', src.' ~ mapping.source_external_id_column ~ ', src.' ~ mapping.data_source_column ~ ', src.' ~ type_col %}
+{%- else -%}
+{%- set returning_clause = pk_str ~ ', src.' ~ mapping.source_external_id_column ~ ', src.' ~ mapping.data_source_column %}
+{%- endif -%}
+{%- include 'snippets/upsert_core.j2' %},
+{%- set internal_id_column = pk_str %}
+{%- set source_cte = 'upsert_result' %}
+{%- include 'snippets/mapping.j2' %}
+{%- else %}
+{%- include 'snippets/upsert_core.j2' %}
+{%- endif %}
+SELECT 1;
+
+{# ============= BLOC 3: Self-reference ============= #}
+{% include 'snippets/self_reference.j2' %}
+
+{# ============= BLOC 4: Soft/Hard Delete ============= #}
+{%- if with_soft_delete or hard_delete %}
+{%- set pk_list = [unique_key] if unique_key is string else unique_key %}
+{%- if hard_delete %}
+{{ hard_delete_statement(target_table, source_table, pk_list, audit is not none, exclude_from_delete) }};
+{%- else %}
+{{ soft_delete_update(target_table, pk_list, source_table, exclude_from_delete) }};
+{%- endif %}
+{%- endif %}

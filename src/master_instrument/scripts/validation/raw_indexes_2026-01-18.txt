@@ -1,0 +1,53 @@
+qa_DS2Adj	idx_ds2adj_adjdate	9392 kB	false	false	AdjDate
+qa_DS2Adj	idx_ds2adj_infocode	15 MB	false	false	InfoCode
+qa_DS2CapEvent	idx_ds2capevent_effectivedate	3568 kB	false	false	EffectiveDate
+qa_DS2CapEvent	idx_ds2capevent_infocode	5272 kB	false	false	InfoCode
+qa_DS2CtryQtInfo	idx_ds2ctryqtinfo_dsseccode	3216 kB	false	false	DsSecCode
+qa_DS2CtryQtInfo	idx_ds2ctryqtinfo_infocode	3840 kB	false	false	InfoCode
+qa_DS2CtryQtInfo	idx_ds2ctryqtinfo_seccode_typ	3720 kB	false	false	seccode, typ
+qa_DS2Div	idx_ds2div_effectivedate	30 MB	false	false	EffectiveDate
+qa_DS2Div	idx_ds2div_infocode	36 MB	false	false	InfoCode
+qa_DS2Div	idx_ds2div_infocode_eventnum	74 MB	false	false	InfoCode, EventNum
+qa_DS2ExchQtInfo	idx_ds2exchqtinfo_infocode	13 MB	false	false	InfoCode
+qa_DS2Exchange	idx_ds2exchange_exchintcode	32 kB	false	false	ExchIntCode
+qa_DS2FxCode	idx_ds2fxcode_exrateint	56 kB	false	false	ExRateIntCode
+qa_DS2FxRate	idx_ds2fxrate_lookup	218 MB	false	false	ExRateIntCode, ExRateDate
+qa_DS2MktVal	idx_ds2mktval_infocode	2405 MB	false	false	InfoCode
+qa_DS2MktVal	idx_ds2mktval_valdate	2366 MB	false	false	ValDate
+qa_DS2MktVal	idx_ds2mktval_valdate_date	2366 MB	false	false	
+qa_DS2MktVal_Changes	idx_ds2mktval_changes_version	10 MB	false	false	sys_change_version
+qa_DS2NumShares	idx_ds2numshares_eventdate	128 MB	false	false	EventDate
+qa_DS2NumShares	idx_ds2numshares_infocode	126 MB	false	false	InfoCode
+qa_DS2PrimQtPrc	idx_ds2primqtprc_infocode_exchintcode	4037 MB	false	false	InfoCode, ExchIntCode
+qa_DS2PrimQtPrc	idx_raw_qa_marketdate	3736 MB	false	false	MarketDate
+qa_DS2PrimQtPrc_Changes	idx_ds2primqtprc_changes_dedup	274 MB	false	false	InfoCode, ExchIntCode, MarketDate, sys_change_version
+qa_DS2PrimQtPrc_Changes	idx_ds2primqtprc_changes_version	36 MB	false	false	sys_change_version
+qa_DS2PrimQtPrc_Changes	idx_qa_market_data_changes_dedup	280 MB	false	false	InfoCode, ExchIntCode, MarketDate, sys_change_version
+qa_DS2PrimQtPrc_Changes	idx_qa_market_data_changes_version	36 MB	false	false	sys_change_version
+qa_DS2Security	idx_ds2security_dscmpycode	5984 kB	false	false	DsCmpyCode
+qa_DS2Security	idx_ds2security_dsseccode	4536 kB	false	false	DsSecCode
+qa_PermOrgRef	idx_permorgref_orgpermid	5120 kB	false	false	OrgPermID
+qa_PermOrgRef	idx_permorgref_prirptentitycode	4160 kB	false	false	PriRptEntityCode
+qa_PermOrgRef	idx_qa_permorgref_orgpermid	5120 kB	false	false	OrgPermID
+qa_PermOrgRef	idx_qa_permorgref_ultparent	3832 kB	false	false	UltimateParentOrgPermID
+qa_PermQuoteRef	idx_permquoteref_dsquotenumber_exchcode	22 MB	false	false	DsQuoteNumber, ExchCode
+qa_RKDFndCmpDet	idx_qa_rkdfndcmpdet_code	4320 kB	false	false	Code
+qa_RKDFndCmpFiling	idx_qa_rkdfndcmpfiling_code_type	10 MB	false	false	Code, TxtInfoTypeCode
+qa_RKDFndCmpRef	idx_qa_rkdfndcmpref_code	3096 kB	false	false	Code
+qa_RKDFndCmpRefIssue	idx_rkdfndcmprefissue_code	3408 kB	false	false	Code
+qa_RKDFndCmpRefIssue	idx_rkdfndcmprefissue_issuecode	2400 kB	false	false	IssueCode
+qa_RKDFndCmpRefIssue	idx_rkdfndcmprefissue_seccode_typ	3032 kB	false	false	seccode, typ
+qa_RKDFndCode	idx_rkdfndcode_curr_lookup	16 kB	false	false	Code, Type_
+qa_RKDFndInfo	idx_qa_rkdfndinfo_repno	4368 kB	false	false	RepNo
+qa_RKDFndInfo	idx_rkdfndinfo_repno	4368 kB	false	false	RepNo
+qa_RKDFndStdFinVal	idx_rkdfndstdfinval_item	6641 MB	false	false	Item
+qa_RKDFndStdFinVal	idx_rkdfndstdfinval_join_filter	47 GB	false	false	Code, PerTypeCode, PerEndDt, StmtDt, Item
+qa_RKDFndStdFinVal	idx_rkdfndstdfinval_perenddt	6643 MB	false	false	PerEndDt
+qa_RKDFndStdFinVal_Changes	idx_rkdfndstdfinval_changes_lookup	8640 kB	false	false	Code, PerTypeCode, PerEndDt, StmtDt
+qa_RKDFndStdFinVal_Changes	idx_rkdfndstdfinval_changes_version	6880 kB	false	false	sys_change_version
+qa_RKDFndStdItem	idx_qa_rkdfndstditem_item	48 kB	false	false	Item
+qa_RKDFndStdPerFiling	idx_rkdfndstdperfiling_code_pertype_perend_stmddt	317 MB	false	false	Code, PerTypeCode, PerEndDt, StmtDt
+qa_RKDFndStdPeriod	idx_rkdfndstdperiod_lookup	182 MB	false	false	Code, PerTypeCode, PerEndDt
+qa_RKDFndStdStmt	idx_rkdfndstdstmt_code	137 MB	false	false	Code
+qa_RKDFndStdStmt	idx_rkdfndstdstmt_lookup	475 MB	false	false	Code, PerTypeCode, PerEndDt, StmtDt
+s3_gics_classification	idx_s3_gics_isin	1976 kB	false	false	isin

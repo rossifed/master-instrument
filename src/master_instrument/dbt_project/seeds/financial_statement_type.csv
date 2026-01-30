@@ -1,0 +1,4 @@
+financial_statement_type_id,mnemonic,name
+1,INC, Income Statement
+2,CAS, Cash Flow
+3,BAL, Balance Sheet

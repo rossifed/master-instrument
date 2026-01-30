@@ -1,0 +1,44 @@
+{#
+  Template: INSERT - Composable orchestrator
+  
+  Isolated block architecture:
+  - snippets/source.j2: Source query with batch filtering
+  - snippets/insert_core.j2: Simple INSERT
+  - snippets/mapping.j2: Mapping table
+  - snippets/self_reference.j2: Circular FKs
+  
+  Required params:
+    - target_table, source_table, columns
+  
+  Optional params:
+    - unique_key (required if mapping)
+    - batch, audit, mapping, self_reference
+    - source_column_mapping: dict for column renaming
+#}
+{%- set pk_str = unique_key if unique_key is string else unique_key[0] if unique_key else none %}
+{%- set source_cte = 'source_query' %}
+
+{# ============= BLOC 1: Source CTE ============= #}
+WITH {% include 'snippets/source.j2' %}
+
+{# ============= BLOC 2: INSERT ============= #}
+{%- if mapping %}
+{#- Cas mapping: utilise insert_core avec returning_clause -#}
+{%- set type_col = mapping.source_type_column if mapping.source_type_column else mapping.mapping_type_column -%}
+{%- if type_col -%}
+{%- set returning_clause = pk_str ~ ', src.' ~ mapping.source_external_id_column ~ ', src.' ~ mapping.data_source_column ~ ', src.' ~ type_col %}
+{%- else -%}
+{%- set returning_clause = pk_str ~ ', src.' ~ mapping.source_external_id_column ~ ', src.' ~ mapping.data_source_column %}
+{%- endif -%}
+,{% include 'snippets/insert_core.j2' %}
+{%- set internal_id_column = pk_str %}
+{%- set source_cte = 'insert_result' %}
+,{% include 'snippets/mapping.j2' %}
+SELECT 1;
+{%- else %}
+,{% include 'snippets/insert_core.j2' %}
+SELECT 1;
+{%- endif %}
+
+{# ============= BLOC 3: Self-reference ============= #}
+{% include 'snippets/self_reference.j2' %}

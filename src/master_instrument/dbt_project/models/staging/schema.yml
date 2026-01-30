@@ -1,0 +1,411 @@
+version: 2
+
+models:
+  - name: stg_qa_quote
+    description: "Staging quote data from QA source"
+    data_tests:
+      - relationships:
+          to: ref('stg_qa_equity')
+          field: external_instrument_id
+          column_name: external_instrument_id
+    columns:
+      - name: external_quote_id
+        description: "External quote identifier"
+        tests:
+          - unique
+          - not_null
+      - name: external_instrument_id
+        description: "External instrument identifier"
+        tests:
+          - not_null
+      - name: external_venue_id
+        description: "External venue identifier"
+        tests:
+          - not_null
+      - name: iso_curr_code
+        description: "ISO currency code"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_company
+    description: "Staging company data from QA source"
+    columns:
+      - name: external_company_id
+        description: "External company identifier (RKD code)"
+        tests:
+          - unique
+          - not_null
+      - name: rkd_code
+        description: "Refinitiv Knowledge Direct company code"
+        tests:
+          - unique
+          - not_null
+      - name: primary_name
+        description: "Primary company name"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_equity
+    description: "Staging equity data from QA source"
+    data_tests:
+      - relationships:
+          to: ref('stg_qa_company')
+          field: external_company_id
+          column_name: external_company_id
+    columns:
+      - name: external_instrument_id
+        description: "External instrument identifier (InfoCode)"
+        tests:
+          - unique
+          - not_null
+      - name: external_company_id
+        description: "External company identifier"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_exchange
+    description: "Staging exchange/venue data from QA source"
+    columns:
+      - name: external_exchange_id
+        description: "External exchange identifier (ExchIntCode)"
+        tests:
+          - unique
+          - not_null
+      - name: exch_mnem
+        description: "Exchange mnemonic"
+      - name: exch_name
+        description: "Exchange name"
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_currency
+    description: "Staging currency data from QA source"
+    columns:
+      - name: code
+        description: "Currency code"
+        tests:
+          - not_null
+
+  - name: stg_qa_dividend
+    description: "Staging dividend data from QA source"
+    columns:
+      - name: external_instrument_id
+        description: "External instrument identifier"
+        tests:
+          - not_null
+      - name: event_num
+        description: "Dividend event number"
+        tests:
+          - not_null
+      - name: effective_date
+        description: "Dividend effective date"
+        tests:
+          - not_null
+      - name: div_rate
+        description: "Dividend rate"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_dividend_type
+    description: "Staging dividend type reference data"
+    columns:
+      - name: code
+        description: "Dividend type code"
+        tests:
+          - unique
+          - not_null
+
+  # Tests disabled for high-volume timeseries models - validation via DB constraints at load time
+  - name: stg_qa_market_data_full
+    description: "Staging full market data from QA source"
+
+  - name: stg_qa_market_data_changes
+    description: "Staging market data changes (CDC) from QA source"
+
+  - name: stg_qa_total_return_full
+    description: "Staging full total return index data from QA source"
+
+  - name: stg_qa_total_return_changes
+    description: "Staging total return index changes (CDC) from QA source"
+
+  - name: stg_qa_fx_rate
+    description: "Staging FX rate data from QA source"
+    columns:
+      - name: ex_rate_date
+        description: "Exchange rate date"
+        tests:
+          - not_null
+      - name: from_curr_code
+        description: "Source currency code"
+        tests:
+          - not_null
+      - name: to_curr_code
+        description: "Target currency code"
+        tests:
+          - not_null
+
+  - name: stg_qa_company_weblink
+    description: "Staging company weblinks from QA source"
+    columns:
+      - name: external_company_id
+        description: "External company identifier"
+        tests:
+          - not_null
+      - name: url
+        description: "Weblink URL"
+        tests:
+          - not_null
+      - name: weblink_type_id
+        description: "Weblink type identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_weblink_type
+    description: "Staging weblink type reference data"
+    columns:
+      - name: weblink_type_id
+        description: "Weblink type identifier"
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_qa_corpact_event
+    description: "Staging corporate action events from QA source"
+    columns:
+      - name: external_instrument_id
+        description: "External instrument identifier"
+        tests:
+          - not_null
+      - name: event_sequence
+        description: "Event sequence number"
+        tests:
+          - not_null
+      - name: effective_date
+        description: "Event effective date"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_corpact_adjustment
+    description: "Staging corporate action adjustments from QA source"
+    columns:
+      - name: external_instrument_id
+        description: "External instrument identifier"
+        tests:
+          - not_null
+      - name: adj_date
+        description: "Adjustment date"
+        tests:
+          - not_null
+      - name: adj_factor
+        description: "Adjustment factor"
+        tests:
+          - not_null
+      - name: cum_adj_factor
+        description: "Cumulative adjustment factor"
+        tests:
+          - dbt_utils.accepted_range:
+              min_value: 0
+              inclusive: false
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_corpact_type
+    description: "Staging corporate action type reference data"
+    columns:
+      - name: code
+        description: "Corporate action type code"
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_qa_equity_type
+    description: "Staging equity type reference data"
+    columns:
+      - name: mnemonic
+        description: "Equity type mnemonic"
+        tests:
+          - unique
+          - not_null
+      - name: description
+        description: "Equity type description"
+        tests:
+          - not_null
+
+  - name: stg_qa_number_of_shares
+    description: "Staging number of shares from QA source"
+    columns:
+      - name: info_code
+        description: "Info code"
+        tests:
+          - not_null
+      - name: event_date
+        description: "Event date"
+        tests:
+          - not_null
+      - name: num_shrs
+        description: "Number of shares"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  # Tests disabled for high-volume timeseries models - validation via DB constraints at load time
+  - name: stg_qa_company_market_cap_full
+    description: "Staging full company market cap from QA source"
+
+  - name: stg_qa_company_market_cap_changes
+    description: "Staging company market cap changes (CDC) from QA source"
+
+  - name: stg_qa_std_financial_filing
+    description: "Staging standardized financial filings from QA source"
+    columns:
+      - name: code
+        description: "Company code"
+        tests:
+          - not_null
+      - name: per_end_dt
+        description: "Period end date"
+        tests:
+          - not_null
+      - name: per_type_code
+        description: "Period type code"
+        tests:
+          - not_null
+      - name: stmt_dt
+        description: "Statement date"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_std_financial_statement
+    description: "Staging standardized financial statements from QA source"
+    columns:
+      - name: code
+        description: "Company code"
+        tests:
+          - not_null
+      - name: per_end_dt
+        description: "Period end date"
+        tests:
+          - not_null
+      - name: per_type_code
+        description: "Period type code"
+        tests:
+          - not_null
+      - name: stmt_dt
+        description: "Statement date"
+        tests:
+          - not_null
+      - name: stmt_type_code
+        description: "Statement type code"
+        tests:
+          - not_null
+      - name: data_source_id
+        description: "Data source identifier"
+        tests:
+          - not_null
+
+  - name: stg_qa_std_financial_item
+    description: "Staging standardized financial items from QA source"
+    columns:
+      - name: item
+        description: "Financial item code"
+        tests:
+          - unique
+          - not_null
+
+  # Tests disabled for high-volume timeseries models - validation via DB constraints at load time
+  - name: stg_qa_std_financial_value_full
+    description: "Staging full standardized financial values from QA source"
+
+  - name: stg_qa_std_financial_value_changes
+    description: "Staging standardized financial value changes (CDC) from QA source"
+
+  - name: stg_qa_std_financial_period
+    description: "Staging standardized financial periods from QA source"
+    columns:
+      - name: code
+        description: "Company code"
+        tests:
+          - not_null
+      - name: period_end_date
+        description: "Period end date"
+        tests:
+          - not_null
+      - name: period_type_code
+        description: "Period type code"
+        tests:
+          - not_null
+
+  - name: stg_qa_security_mapping
+    description: "Staging security mapping from QA source"
+    columns:
+      - name: ds_info_code
+        description: "Datastream info code"
+        tests:
+          - not_null
+      - name: ds_sec_code
+        description: "Datastream security code"
+        tests:
+          - not_null
+      - name: rkd_code
+        description: "RKD company code"
+        tests:
+          - not_null
+      - name: rkd_issue_code
+        description: "RKD issue code"
+        tests:
+          - not_null
+
+  - name: stg_s3_gics_classification
+    description: "Staging GICS classification from S3 source"
+    columns:
+      - name: isin
+        description: "ISIN identifier"
+        tests:
+          - not_null
+      - name: gics_sub_industry_code
+        description: "GICS sub-industry code"
+        tests:
+          - not_null
+
+  - name: stg_s3_atonra_theme
+    description: "Staging Atonra theme classification from S3 source"
+    columns:
+      - name: isin
+        description: "ISIN identifier"
+        tests:
+          - not_null
+      - name: theme
+        description: "Theme name"
+        tests:
+          - not_null

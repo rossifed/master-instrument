@@ -1,0 +1,15 @@
+FROM timescale/timescaledb-ha:pg17
+
+USER root
+
+RUN apt-get update \
+    && apt-get install -y \
+        postgresql-server-dev-17 \
+        pgxnclient \
+        make \
+        gcc \
+    && pgxn install temporal_tables \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+USER postgres

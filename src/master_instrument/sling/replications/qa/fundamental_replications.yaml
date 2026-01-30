@@ -1,0 +1,96 @@
+# config/sling/referential/qa_fundamental_replications.yaml
+source: QA_MSSQL
+target: REFERENTIAL_POSTGRES
+
+defaults:
+  mode: incremental
+  object: raw.qa_{stream_table}
+  schema: raw
+
+streams:
+  dbo.RKDFndStdFinVal:
+    mode: truncate
+    # update_key: PerEndDt
+    source_options:
+      chunk_size: 12m
+    target_options:
+      batch_size: 50000  
+    meta:
+      dagster:
+        asset_key: raw.full.qa.fundamental.qa_rkdfndstdfinval_full
+        group: "fundamental"
+  
+  dbo.RKDFndStdFinVal_Changes:
+    sql: |
+      SELECT
+          ct.*,
+          fv.CalPerEndDt,
+          fv.CalStmtDt,
+          fv.Value_
+      FROM CHANGETABLE(CHANGES dbo.RKDFndStdFinVal, {incremental_value}) AS ct
+      JOIN dbo.RKDFndStdFinVal AS fv
+          ON fv.Code = ct.Code
+          AND fv.PerEndDt = ct.PerEndDt
+          AND fv.PerTypeCode = ct.PerTypeCode
+          AND fv.StmtDt = ct.StmtDt
+          AND fv.StmtTypeCode = ct.StmtTypeCode
+          AND fv.Item = ct.Item
+    mode: incremental
+    update_key: SYS_CHANGE_VERSION
+    source_options:
+      initial_value: '{CHANGE_TRACKING_INITIAL_VERSION}'
+    meta:
+      dagster:
+        asset_key: raw.qa.fundamental.qa_rkdfndstdfinval_changes
+        group: "fundamental"
+  
+  dbo.RKDFndStdItem:
+    mode: truncate
+    meta:
+      dagster:
+        asset_key: raw.qa.fundamental.qa_rkdfndstditem
+        group: "fundamental"
+  
+  dbo.RKDFndStdPeriod:
+    mode: truncate
+    meta:
+      dagster:
+        asset_key: raw.qa.fundamental.qa_rkdfndstdperiod
+        group: "fundamental"
+  
+  dbo.RKDFndStdPerFiling:
+    mode: truncate
+    meta:
+      dagster:
+        asset_key: raw.qa.fundamental.qa_rkdfndstdperfiling
+        group: "fundamental"
+  
+  dbo.RKDFndStdStmt:
+    mode: truncate
+    meta:
+      dagster:
+        asset_key: raw.qa.fundamental.qa_rkdfndstdstmt
+        group: "fundamental"
+  
+  # dbo.RKDFndCSFFinVal:
+  #   mode: truncate
+  #   update_key: PerEndDt
+  #   source_options:
+  #     chunk_size: 12m
+  #   meta:
+  #     dagster:
+  #       asset_key: raw.qa.fundamental.qa_rkdfndcsffinval
+  #       group: "fundamental"
+  
+  # dbo.RKDFndCSFItem:
+  #   mode: full-refresh
+  #   meta:
+  #     dagster:
+  #       asset_key: raw.qa.fundamental.qa_rkdfndcsfitem
+  #       group: "fundamental"
+
+env:
+  SLING_THREADS: '${SLING_THREADS}'
+  SLING_STATE: '${SLING_STATE}'
+  TIMESERIES_START_DATE: '${TIMESERIES_START_DATE}'
+  CHANGE_TRACKING_INITIAL_VERSION: '${CHANGE_TRACKING_INITIAL_VERSION}'

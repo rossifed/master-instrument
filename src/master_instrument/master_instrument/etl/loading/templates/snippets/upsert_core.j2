@@ -1,0 +1,67 @@
+{#
+  CTE: Core UPSERT (INSERT ON CONFLICT) statement
+  
+  Generates a simple UPSERT without inheritance or mapping.
+  Isolated block - knows nothing about extensions.
+  
+  Uses IS DISTINCT FROM in WHERE clause to avoid triggering temporal table
+  triggers when data hasn't actually changed.
+  
+  Required params:
+    - target_table: target table
+    - source_cte: source CTE name
+    - unique_key: PK column(s) - string or list
+    - columns: column list
+    - data_columns: non-PK columns
+    
+  Optional params:
+    - audit: AuditConfig
+    - returning_clause: columns to return
+    - source_unique_key: if different from unique_key in source
+#}
+{%- set source_key = source_unique_key if source_unique_key else unique_key %}
+{%- set pk_list = [unique_key] if unique_key is string else unique_key %}
+{%- set src_pk_list = [source_key] if source_key is string else source_key %}
+upsert_result AS (
+    INSERT INTO {{ target_table }} (
+        {% for col in columns %}{{ col }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit -%}
+        {%- if audit.with_created_at -%},created_at{%- endif -%}
+        {%- if audit.with_updated_at -%},updated_at{%- endif -%}
+        {%- if audit.with_deleted_at -%},deleted_at{%- endif -%}
+        {%- endif -%}
+    )
+    SELECT
+        {% for col in columns -%}
+        {%- if source_unique_key and col in pk_list -%}
+            {%- set pk_idx = pk_list.index(col) -%}
+            {{ src_pk_list[pk_idx] }}
+        {%- else -%}
+            {{ col }}
+        {%- endif -%}
+        {{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit -%}
+        {%- if audit.with_created_at -%},CURRENT_TIMESTAMP{%- endif -%}
+        {%- if audit.with_updated_at -%},CURRENT_TIMESTAMP{%- endif -%}
+        {%- if audit.with_deleted_at -%},NULL{%- endif -%}
+        {%- endif -%}
+    FROM {{ source_cte }}
+    ON CONFLICT ({% for key in pk_list %}{{ key }}{{ ", " if not loop.last else "" }}{% endfor %})
+{%- if data_columns or audit %}
+    DO UPDATE SET
+        {% for col in data_columns %}{{ col }} = EXCLUDED.{{ col }}{{ "," if not loop.last else "" }}
+        {% endfor %}
+        {%- if audit and audit.with_updated_at -%},updated_at = CURRENT_TIMESTAMP{%- endif %}
+    WHERE
+{%- for col in data_columns %}
+        {{ target_table.split('.')[-1] }}.{{ col }} IS DISTINCT FROM EXCLUDED.{{ col }}{{ " OR" if not loop.last else "" }}
+{%- endfor %}
+{%- else %}
+    DO NOTHING
+{%- endif %}
+{%- if returning_clause %}
+    RETURNING {{ returning_clause }}
+{%- endif %}
+)

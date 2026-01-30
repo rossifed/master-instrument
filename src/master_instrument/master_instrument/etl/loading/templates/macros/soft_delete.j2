@@ -1,0 +1,39 @@
+{#
+  Macros for soft delete management
+  
+  Usage:
+    {% from 'macros/soft_delete.j2' import soft_delete_update, hard_delete %}
+#}
+
+{# Generates an UPDATE for soft delete (marks deleted_at) #}
+{% macro soft_delete_update(table_name, unique_key, source_cte, exclude_conditions=None) -%}
+UPDATE {{ table_name }} tgt
+SET
+    deleted_at = CURRENT_TIMESTAMP,
+    updated_at = CURRENT_TIMESTAMP
+WHERE tgt.{{ unique_key }} NOT IN (
+    SELECT {{ unique_key }}
+    FROM {{ source_cte }}
+)
+{%- if exclude_conditions %}
+AND NOT (
+    {%- for condition in exclude_conditions %}
+    {{ condition }}{{ " OR" if not loop.last else "" }}
+    {%- endfor %}
+)
+{%- endif %}
+AND tgt.deleted_at IS NULL
+{%- endmacro %}
+
+{# Generates a physical DELETE (hard delete) #}
+{# Supports simple keys (string) and composite keys (list) #}
+{% macro hard_delete_statement(table_name, source_table, pk_list, has_audit=false, exclude_conditions=None) -%}
+DELETE FROM {{ table_name }} tgt
+WHERE NOT EXISTS (
+    SELECT 1 FROM {{ source_table }} src
+    WHERE {% for col in pk_list %}src.{{ col }} = tgt.{{ col }}{{ " AND " if not loop.last else "" }}{% endfor %}
+)
+{%- if exclude_conditions %}
+AND NOT ({{ exclude_conditions }})
+{%- endif %}
+{%- endmacro %}

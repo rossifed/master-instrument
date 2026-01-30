@@ -1,0 +1,128 @@
+source: QA_MSSQL
+target: REFERENTIAL_POSTGRES
+
+defaults:
+  mode: incremental
+  object: raw.qa_{stream_table}
+  schema: raw
+
+streams:
+  dbo.DS2MktVal:
+    mode: truncate
+    source_options:
+      chunk_size: 10000  # ~20 chunks (390k range / 20k) - aligned with DS2PrimQtPrc
+    update_key: InfoCode
+    target_options:
+      batch_size: 50000  
+    meta:
+      dagster:
+        asset_key: raw.full.qa.market.qa_ds2mktval_full
+        group: "market"
+  dbo.DS2MktVal_Changes:
+    sql: |
+      SELECT
+          ct.*,
+          mktv.ConsolNumShrs,
+          mktv.ConsolMktVal
+      FROM CHANGETABLE(CHANGES dbo.DS2MktVal, {incremental_value}) AS ct
+      JOIN dbo.DS2MktVal AS mktv
+          ON  mktv.InfoCode = ct.InfoCode
+          AND mktv.ValDate  = ct.ValDate
+    mode: incremental
+    update_key: SYS_CHANGE_VERSION
+    source_options:
+      initial_value: '{CHANGE_TRACKING_INITIAL_VERSION}'
+    meta:
+      dagster:
+        asset_key: raw.qa.market.qa_ds2mktval_changes
+        group: "market"      
+  dbo.DS2PrimQtPrc:
+    mode: truncate
+    source_options:
+      chunk_size: 10000  # ~20 chunks (390k range / 20k)
+    update_key: InfoCode
+    target_options:
+      batch_size: 50000  
+    meta:
+      dagster:
+        asset_key: raw.full.qa.market.qa_ds2primqtprc_full
+        group: "market"
+  dbo.DS2PrimQtPrc_Changes:
+    sql: |
+      SELECT
+          ct.*,
+          prc.ExchIntCode, 
+          prc.ISOCurrCode, 
+          prc.RefPrcTypCode, 
+          prc.Open_, 
+          prc.High, 
+          prc.Low, 
+          prc.Close_, 
+          prc.Volume, 
+          prc.Bid, 
+          prc.Ask, 
+          prc.VWAP, 
+          prc.MostTrdPrc, 
+          prc.ConsolVol, 
+          prc.MostTrdVol
+      FROM CHANGETABLE(CHANGES dbo.DS2PrimQtPrc, {incremental_value}) AS ct
+      JOIN dbo.DS2PrimQtPrc AS prc
+          ON prc.InfoCode   = ct.InfoCode
+         AND prc.MarketDate = ct.MarketDate
+    mode: incremental
+    update_key: SYS_CHANGE_VERSION
+    source_options:
+      initial_value: '{CHANGE_TRACKING_INITIAL_VERSION}'
+    meta:
+      dagster:
+        asset_key: raw.qa.market.qa_ds2primqtprc_changes
+        group: "market"
+  dbo.DS2FxRate:
+    sql: | 
+         SELECT
+            dfr.*,
+            qdfc."FromCurrCode",
+            qdfc."ToCurrCode"
+          FROM dbo.DS2FXRate   AS dfr
+          JOIN dbo.DS2FXCode  AS qdfc
+              ON qdfc."ExRateIntCode" = dfr."ExRateIntCode"
+          WHERE qdfc."RateTypeCode" = 'SPOT'
+    mode: truncate
+    meta:
+      dagster:
+        asset_key: raw.qa.market.qa_ds2fxrate
+        group: "market"
+  dbo.DS2PrimQtRI:
+    mode: full-refresh
+    source_options:
+      chunk_size: 10000  # ~20 chunks (390k range / 20k)
+    update_key: InfoCode
+    target_options:
+      batch_size: 50000  
+    meta:
+      dagster:
+        asset_key: raw.full.qa.market.qa_ds2primqtri_full
+        group: "market"
+  dbo.DS2PrimQtRI_Changes:
+    sql: |
+      SELECT
+          ct.*,
+          dpqr.ExchIntCode,
+          dpqr.RI
+      FROM CHANGETABLE(CHANGES dbo.DS2PrimQtRI, {incremental_value}) AS ct
+      JOIN dbo.DS2PrimQtRI AS dpqr
+          ON dpqr.InfoCode   = ct.InfoCode
+         AND dpqr.MarketDate = ct.MarketDate
+    mode: incremental
+    update_key: SYS_CHANGE_VERSION
+    source_options:
+      initial_value: '{CHANGE_TRACKING_INITIAL_VERSION}'
+    meta:
+      dagster:
+        asset_key: raw.qa.market.qa_ds2primqtri_changes
+        group: "market"
+env:
+  SLING_THREADS: '${SLING_THREADS}'
+  SLING_STATE: SLING_POSTGRES/_sling
+  TIMESERIES_START_DATE: '${TIMESERIES_START_DATE}'
+  CHANGE_TRACKING_INITIAL_VERSION: '${CHANGE_TRACKING_INITIAL_VERSION}'

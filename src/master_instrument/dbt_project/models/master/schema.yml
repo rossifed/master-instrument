@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  # Tests disabled for high-volume timeseries views - validation via DB constraints
+  - name: vw_market_data_base
+    description: "Base view wrapping market_data table with currency_id from quote"
+
+  - name: vw_market_data_corp_adjusted
+    description: "Market data adjusted for corporate actions"
+
+  - name: vw_market_data_div_adjusted
+    description: "Market data adjusted for dividends"
+
+  - name: vw_company
+    description: "Company master data view"
+    columns:
+      - name: company_id
+        description: "Primary key"
+        tests:
+          - unique
+          - not_null
+      - name: name
+        description: "Company name"
+        tests:
+          - not_null
+      - name: country_id
+        description: "Foreign key to country"
+        tests:
+          - relationships:
+              to: source('master', 'country')
+              field: country_id
+              config:
+                severity: warn  # warn instead of error for nullable FK
